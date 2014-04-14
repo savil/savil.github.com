@@ -1,0 +1,12 @@
+body {
+  font-size: 1em;
+}
+
+a {
+  border-bottom: 1px dotted #ccc;
+  text-decoration: none;
+}
+
+.home_link_container {
+  margin-bottom: 13px;
+}
