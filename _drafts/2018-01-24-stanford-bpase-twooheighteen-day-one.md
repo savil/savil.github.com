@@ -285,90 +285,97 @@ Conclusion:
 
 Talk 3: smart contracts for bribing miners {#talk3}
 --------
-by Patrick McCorry: @paddyucl
+by Patrick McCorry: [@paddyucl](https://twitter.com/paddyucl). [Paper](http://homepages.cs.ncl.ac.uk/patrick.mccorry/minerbribery.pdf)
 
-TODO savil: 
-* i missed the start of this talk
-* speaker went rather fast and so my notes need revision once video is posted.
-* gosh, looking over my notes, i really didn't absorb this one well. 
-* if you are really interested, look up these two articles:
-  * https://www.benthamsgaze.org/2018/01/23/smart-contracts-and-bribes/
-  * http://homepages.cs.ncl.ac.uk/patrick.mccorry/minerbribery.pdf
+useful background info:
 
-bribery attack:
+  * miner incentives:
+    * long term: want network to succeed
+    * short term: may deviate for profit => tragedy of the commons!
+      * example:
+        * founder of BTC.TOP offered $100 million to kill some fork of btc.
 
-miner incentives:
-* long term: want network to succeed
-* short term: may deviate for profit
-* examples:
-  * founder of BTC.TOP offered $100 million to kill some fork
+    * whale tx
+      * a tx that has a large fee for the miners
+      * problem: asymmetrical trust for briber or bribed miner => briber has to trust miner, or miner has to trust briber.
 
-* whale tx
-  * large tx fee
-  * asymmetrical trust for briber or bribed miner (TODO savil: don't understand this)
+    * script puzzles
+      * divert hashrate from mining to solving the puzzle.
+      * problem: weaken longest chain overall weight
 
-* script puzzles
-  * divert hashrate
-  * weaken longest chain overall weight (TODO savil: don't understand)
+    * proof of stale block
+      * ethereum contract rewards miners for withholding blocks in btc
+      * problem: contract cannot verify block's correctness
 
-* proof of stale block
-  * contract rewards miners for withholding blocks in btc
-  * contract cannot verify block's correctness
-
-* can smart-contract impact nakamoto style consensus?
+* can smart-contract impact nakamoto-style consensus?
 
   * censorshipCon: briber seeks to censor tx
     * attacker to miner: please pursue uncle block mining strategy
       * uncle block: stale blocks later introduced in blockchain
       * ethereum rewards via "uncle block reward policy"
-    * this way, network funds bribery attack (??)
+         * You can find Ethereum's design rationale for uncle blocks [here](https://github.com/ethereum/wiki/wiki/Design-Rationale#uncle-incentivization).
+    * this way, network funds bribery attack.
     * assumptions:
-      * Alice has convinced sufficient % of miners to join
-      * Alice will include all uncle blocks and accept bribe tx -> this subsidises her
+      * attacker has convinced sufficient % of miners to join
+      * attacker will include all uncle blocks and accept bribe tx -> this subsidises her
     * step 1: let's assume uncle block was mined and included in blockchain
-    * step 2: miner sends contract that has 3 diff block headers: 
+    * step 2: miner sends contract that has 3 diff block headers. Namely: uncle block, competing block (same level as uncle block), publisher block (has header of uncle block).
       * contract checks:
-        1.
-        2.
-        3.
+        1. verify that Attacker's competing block and the publisher block are in the blockchain.
+        2. the publisher block has indeed included the header of the uncle block
+        3. the competing block and uncle block extend the same parent block i.e. prove they are at the same level.
       * c_payout = c_bribe + c_block - c_uncle
+        * the c_uncle that is issued to the miner is instead consumed by the attacker, thereby subsidizing her.
       * ethereum limits number of uncle blocks to 2, per block  
       * for each uncle block:
         * network pays 2.625 eth
         * Alice pays...
 
-  * historyRevisionCon: reverse tx
-    * Alice wants to double spend
+  * historyRevisionCon: 
+    * reverse tx to enable double spending.
     * assume:
-      * no asymetrical trust assumptions (TODO savil)
-      * contract's integrity not affected, by forks
+      * no asymetrical trust assumptions between the briber and the miner. Neither party needs to trust the other.
+        * if miners don't trust the briber => then briber must sign a list of tx in advance with incrementing time-locks (to ensure only a single bribe is included per block)
+        * if briber doesn't trust the miners => can include a whale tx (with incentive of large fee) after each block in the alternate chain.
+      * contract's integrity not affected, by forks.
     * lets have three accounts:
       * A1 = 10 coins. creates and funds contract. 
-      * A2 = 100 coins to double spend. 
-      * A3 = 0 coins. to receive double-spend coins.
+      * A2 = 100 coins to double spend. Spends coins in the longest chain.
+      * A3 = 0 coins. to receive double-spend coins. Receives coins from A2 in the alternate-chain.
+     * wait until A2 is confirmed in blockchain.
      * Alice publishes two tx:
-       1. double spend tx. send 100 coins from A2 to A3
-       2. ... (TODO savil)
+       1. double spend tx. send 100 coins from A2 to A3.
+       2. tx to create the historyRevisionCon contract.
      * first block: both tx from alice + accept-bribe tx. Makes new fork.
-     * contract checks = 
-     * two modes of payment:
-       1. every block
-       2. every uncle block
+       * in every block in this alternate chain, the accept-bribe tx must be included. It will check that a bribe has not been paid for this block, and send the bribe-money to the miner.
+     * analysis. Notice there are two modes of payment:
+       1. every block that gets included in the final blockchain.
+       2. or if not included, then every uncle block (similar to CensorshipCon)
        * win win for miner
      * Alice doesn't need any hashrate for this attack
      * more than double-spending:
        * inspect state of other contracts - reverse computations and state contracts
 
-  * GoldfingerCon: reduce utility of competing cryptocurrency (e.g. make btc less useful)
-     * alice: i want to reduce btc utility
+  * GoldfingerCon: 
+     * reduce utility of competing cryptocurrency (e.g. make btc less useful)
      * assumptions:
-       * no assymetrical trust assumptions
+       * no asymetrical trust assumptions
        * briber remains online to publish bribed blocks
      * method:
-       * TODO savil
+       * have miner mine empty blocks in btc, and then prove in ethereum contract that they did this.
+       * miner publishes empty block in btc. This comprises of the coinbase transaction.
+       * in ethereum, he publishes a transaction for "accept bribe", that:
+         * has the btc-block-header, and the coinbase-tx
+         * calls GoldFingerCon contract's AcceptBribe function that needs to verify the btc-block is empty.
+           * the block is proved empty by checking that the merkle tree root is the same as the coinbase-tx hash.
+             * TODO savil. how does ethereum look up properties of the btc-blockchain?
+         * the contract then sends the reward to the ethereum address of the miner.
+	   * this ethereum address is calculated by: extract public-key from coinbase-tx output, and compute the ethereum address for this public-key. 
 
 future work:
   * ramp up: assume majority of miners to participate
+    * to incentize this, can set time-limits for certain events before voiding the contract.
+      * For example, in GoldfingerCon, could specify that x% of blocks must be mined by time t1, then 2x% of blocks by time t2, and so on.
   * impact of selfish mining in combination with bribery attacks for attacking and defending network
   * can bribery ctx by used in proof-of-stake, and are there fundamental diff in style of bribery?
      * same coin can be used for both voting rights and paying bribes.
@@ -395,25 +402,31 @@ intuition:
 * pow: comes from brute force guessing of nonce
 * pos: comes from protocol itself
 
-Jonah proposes the following model (TODO savil, this needs better explanation):
+Jonah proposes the following model 
 1. use some method to pick coin
 2. use some method to pick existing block
+  * TODO savil: won't this always be the last "mined" block?
 3. owner of coin gets to add new block
 4. repeat
 
 Formal notation:
 * B, is a block that has: t(B) timestamp, c(B) coin, miner(B), contents
 * A = Pred(B), the previous block in the chain
+* for a block B, history of tx in B and Pred(B) define ownership of coins marked as owner(c(B)).
 
 assumptions:
 1. chain dependence: validity of B at t depends only on t and Pred(B)
 2. monotonicity: if B is valid at time t, then valid at all future times t' > t
   * even if not on longest chain, block is still "valid"
+These assumptions hold for pow protocols like btc. These assumptions means we don't consider ["eclipse-attacks"](https://www.usenix.org/node/190891) as threats in this model (although they exist in real life).
 
 POS, has two functions:
 1. validating function V
   * efficiently computable by every protocol participant
-  * B with A = Pred(B) is valid at t if and only if ...(TODO savil)
+  * B with A = Pred(B) is valid at t if and only if 
+    * V(B) = 1
+    * Miner(B) = Owner(c(B)) at A
+    * t(A) <= t(B) <= t
 2. mining function M: inputs are B, coin c, timestamp t => outputs new block
   * M(A, c, tv) is efficiently computable by owner 
   * if there is a valid block, then mining function should actually mine something
@@ -422,22 +435,29 @@ Longest-chain protocol
 
 * Properties:
   * Property 1: D-Locally Predictable
-    * For coin c, owner of c can predict D blocks in advance that she is eligibile to use c to mine a block
+    * For coin c, owner(c) can predict D blocks in advance that she is eligible to use c to mine a block
     * every POS protocol is 1-locally predicatable.
-    * but 1-local predictability can be chained on a private fork
+    * but 1-local predictability can be chained on a private fork, letting one predict far in advance how many future blocks one can mine.
 
-  * Property 2: D-Globally predicatable 
-    * every protocol participant can predict whether owner(c) is eligible to use c to mine
+  * Property 2: D-Globally predictable 
+    * every protocol participant can predict whether owner(c) is eligible to use c to mine, D blocks in advance.
 
-  * Examples:
-    1. V(c) = 1 <= > H(c(B), t(B)) < Threshold => globally (TODO savil, or locally?) predictable for all D
+  * Two extreme xamples:
+    
+    1. V(B) = 1 <=> Hash(c(B), t(B)) < Threshold => globally predictable for all D
+      * this was original POS proposal, where this Hash function replaces the btc-nonce.
     2. protocol where:
-      * every block contains signature(B)
-      * M(A, c, t) = B where s(B) = SIG(H(s(A), t)
+      * every block contains signature s(B)
+      * M(A, c, t) = B where s(B) = SIG(Hash(s(A), t), where SIG is signed by private key of owner(c)
       * V(B) = 1 <=> H(s(B)) < T
-      * this is not globally predictable for anyone 
+      * this is not globally predictable for anyone. It is 1-locally predictable.
+      * based on Algorand's protocol
+      * here s(A) becomes the source of pseudorandomness
 
-  * Property 3: D-recent, miner of C cannot efficiently predict (TODO savil, is this correct?)
+  * Property 3: D-recent
+    * miner of C cannot efficiently predict D blocks in advance if she is eligible to mine a block.
+    * negation of D-locally predictable
+    * blocks [1, D-1] provide the source of pseudo-randomness
 
 Attack: predictable selfish mining:
 * withhold a newly mined block B and secretly try to mine on top of it
@@ -447,13 +467,13 @@ Attack: predictable selfish mining:
 
 Attack: predictable double spending
 * you want to predict private fork, but do so to cancel some tx
-* predict you can product secret fork of k blocks
-* buy $$, if deliverreed before k blocks are mined then include conflicting tx on secret-fork, then publish the fork!
+* predict you can produce secret fork of k blocks
+* buy $$, if delivered before k blocks are mined then include conflicting tx on secret-fork, then publish the fork!
 * D-predictability for large values of D => gives time to prepare for launching an attack
 * could be useful to prepare for stranger attacks by offering to take a bribe
 
 Attacks: undetectable nothing-at-stake
-* for d-recent protocols, blocks A dn B at two ends of length D fork have "independent psuedorandomness"
+* for d-recent protocols, blocks A and B at two ends of length D fork have "independent pseudorandomness"
 * trying to mine on both sides of fork, doubles chances of successfully mining
 * if all coins are held in diff accounts, can make attack undetectable
 
@@ -466,7 +486,7 @@ Attacks: undetectable nothing-at-stake
   * algorand (would be vuln to nothing-at-stake attack but not longest chain)
 
 Conclusion:
-* Predictability versus recency is a tradeoff: must protect against attacks from other side
+* Predictability versus recency is a tradeoff: if choose one, then protocol designers must add mitigating measures or protection against attacks from other.
 * 1-local predictability is necessary
 * global-predictability is not necessary => can eliminate at the cost of a digital sig at every ...stake?
 
@@ -487,15 +507,16 @@ q: smaller the D, may affect entropy of seed that is used to randomly select min
   * e.g. look back 1000 blocks, and use all of that randomness. That is 1000-predictable in model. 
 
 q: asynchrony plays a role.
-the more synchronicity you assume, the more tou can eliminate selfish mining
+the more synchronicity you assume, the more you can eliminate selfish mining
 
-q: check out divinity (not a question)
-* but the paper is here https://medium.com/dfinity/dfinity-white-paper-our-consensus-algorithm-a11adc0a054c
+q: check out Dfinity (not a question)
+* but [the paper is here](https://medium.com/dfinity/dfinity-white-paper-our-consensus-algorithm-a11adc0a054c)
 
 Talk 5: programming incentives: an intro to cryptonomics {#talk5}
 --------
 by Karl Floersch, Ethereum Foundation
-casper protocol
+
+On casper protocol
 
 pow:
 has incentive to mine on the longest chain => casper needs to solve this
@@ -511,36 +532,35 @@ problems:
   * useful for: sharding, main chain consensus (casper), cryptoeconomic light clients (e.g. want to sync chain, get block from validator who signs that if block is not in main chain then loses deposit)
 
 hybrid casper:
-FFG: adding finality to eth main chain
-every 50 blocks vote on whether block is in main chain
-reduces energy => lower block reward
-
-any eth holder can become validator by depositing eth in casper smart contract
-staking pools can run casper themselves (???)
+* FFG (Friendly Finality Gadget): adding finality to eth main chain
+  * every 50 blocks vote on whether block is in main chain
+  * reduces energy => lower block reward
+* any eth holder can become validator by depositing eth in casper smart contract
+* staking pools can run casper themselves 
 
 why deposits?
-see validators as evil. Give larger incentives to work with. impose large penalty on bad ators
+* see validators as evil. 
+* Give larger incentives to work with. 
+* impose large penalty on bad actors.
 
+mechanism:
 * chain is chunked in 50 block segments called epochs
 * every 50th block => checkpoints
 * finality = 2/3 votes from validators
 * waits till two checkpoints in a row
+* every vote = prep of current epoch, and confirmation of previous epoch
 
-every vote = prep of current epoch, and confirmation of previous epoch
+slashing conditions
+* solves nothing-at-stake problem
+* if there are two chains that are finalized, then 1/3 of validator deposits are lost/"slashed"
+  * no double votes => validator cannot vote on two conflicting chains
+  * no surround vote => cannot vote on two chains such that there's a gap in between
+* see video about this
 
-4. slashing conditions
-solves nothing-at-stake problem
-
-if there are two chains that are finalized, then 1/3 of validator deposits are lost/"slashed"
-* no double votes => validator cannot vote on two conflicting chains
-* no surround vote => cannot vote on two chains such that there's a gap in between
-
-see videos about this
-
-5. designing casper FFG by Vlad and Vitalik
-"minimal slashing conditions" => 4 conditions
-came with formal verification 
-but we should use it when human intuitions are not enough, not a replacement for intuition
+designing casper FFG by Vlad and Vitalik
+* "minimal slashing conditions" => 4 conditions
+* came with formal verification 
+* but we should use it when human intuitions are not enough, not a replacement for intuition
 
 "parameterizing casper: decentralization/finality tradeoff"
 
@@ -548,114 +568,111 @@ Q: ken huang
 problems:
 1. ddos against validation pool
 2. collusion in validation pool (67% attack)
+Answer:
+  * slashing means minority loses deposit. There is some paper about this.
+  * to mitigate: can fork off censoring chain (???)
 
-slashing means minority loses deposit. There is some paper about this.
-to mitigate: can fork off censoring chain (???)
-
-in validation pool, run decentralized protocol to decide. Doesn't need to be a central server.
+  * in validation pool, run decentralized protocol to decide. Doesn't need to be a central server.
 
 q. is there a complete final write up of the protocol? for academic contributions
-go to ethereum website on casper basics
+* go to ethereum website on casper basics
 
 q. planning to swap out consensus mechanism for $100B currency, does it worry you?
-have mandate to move forward. ties in with sharding and plasma vision.
-schedule: have casper test net, have sharded eth node that is being developed, have plasma minimal viable. 3 fronts. no date.
+* have mandate to move forward. ties in with sharding and plasma vision.
+* schedule: have casper test net, have sharded eth node that is being developed, have plasma minimal viable. 3 fronts. no date.
 
 q (DHVC): path from hybrid to full?
-one simple option: turn casper validator votes into blocks themselves. issue: have a 1000 validators, can one have a 1000 blocks to reach finality?
-casper ffg is a simplified expression within vlad's framework. which is a 1 vote is 1 block view.
+* one simple option: turn casper validator votes into blocks themselves. issue: have a 1000 validators, can one have a 1000 blocks to reach finality?
+* casper ffg is a simplified expression within vlad's framework. which is a 1 vote is 1 block view.
 
 q: smart contracts, have access to block info, and will there be access to epic/finalization info?
-for plasma chains, this is important. we will probably see access to such apis.
+* for plasma chains, this is important. we will probably see access to such apis.
 
 q: what is the simulation environment or research process?
-risks of censorship or finality reversion. based on thsese risks, what rewards should we offer validators, or failure rates can we tolerate?
+* risks of censorship or finality reversion. based on these risks, what rewards should we offer validators, or failure rates can we tolerate?
 
 Talk 6: ThunderToken: blockchains with optimistic instant confirmation {#talk6}
 -----
 By Elaine Shi, Cornell and Thundertoken
 
-what applications does this enable?
+* what this talk is about:
+  * Doing fas, block confirmation times. 
+  * talk is about: core consensus and crash course on dist consensus
+  * not about: incentives and governance policy
 
-about: core consensus and crash course on dist consensus
-not about: incentives and governance policy
+* motivation: 
+  * consider losses by airlines in reservation system downtimes
+  * need: replication and robustness
+  * this inspired dist. systems
 
-motivation: consider losses by airlines in reservation system downtimes
-need: replication and robustness
-this inspired dist. systems
+* state machine replication: linearly ordered log, and consensus
+  * consistency: honest nodes agree on log
+  * liveness: txs are incorporated quickly
+  * implementation: "chubby lock service for loosely coupled dist systems" mike burrows, google -> apache zookeeper
 
-state machine replication: linearly ordered log, and consensus
+* traditional consensus: single org, dozen servers, fast lan
+* cryptocurrencies: aspire to large-scale deployments
+  * in china, scale is 100 banks and 1000 nodes
+  * large scale dist protocols: chain.com, hyperledger, etc.
 
-consistency: honest nodes agree on log
-liveness: txs are incorporated quickly
+So, why is this not a solved problem? why roll one's own?
+* Classical: e.g. pbft, paxos. Are fast BUT complex.
+* Blockchains: e.g. "mathematics behind blockchains"[GKL'15][PSS'17]. 
+  * Are simple, robust, but slow.
+  * are often wasteful
+  * assume: can remove pow from blockchains ("sleepy consensus" - PS16)
+  * some of the slowness is inevitable - there's some paper about this.
 
-"chubby lock service for loosly coupled dist systems" mike burrows, google -> apache zookeeper
 
-traditional consensus: single org, dozen servers, fast lan
-cryptocurrencies: aspire to large-scale deployments
-in china, scale is 100 banks and 1000 nodes
-large scale dist protocols: chain.com, hyperledger, etc.
+* voting based protocol
+  * leader proposes (Seq, txs)
+  * everyone votes, but one can have a bad tx in it?
+  * honest nodes vote uniquely
+  * honest leader = consistency and liveness
+  * but dishonest leader = consistency but no liveness
+* in classical consensus, this voting has a simple normal path, but when something goes wrong, the recovery path is very complicated
+  * e.g. chain.com only implemented the simple normal path, but not practical when so many actors involved (100 banks) to recover with.
+* high-level idea with thundertoken is to replace complicated recovery path with a blockchain.
+  * simple and robust as a blockchain
+  * in optimistic case, need 2-3 "actual network rounds"
+  * in attack case, fallback to underlying blockchain
 
-why is this not a solved problem? why roll one's own?
+* ethereum scenario: 
+  * leader, blockchain and committee (e.g. stakeholders, or banks in a trusted scenario)
+  * assumptions: assume miners are majority honest, and committee is majority honest (but need not be online)
+  * attempt 1: 
+    * vote on blocks, confirm a block upon collecting enough votes by the committee.
+    * problem: let's imagine blockchain forks in the day (due to network delay), so people who made fork A are now inconsistent with fork B that later won out. So, even if it worked, must wait for 1 block interval.
+  * attempt 2 (actual proposal): 
+    * leader proposes (seq, txs) and everyone votes on it
+    * for a tx to become "notarized", it needs 3/4 of committee to vote
+  * let's imagine 
+    * tx1, tx2, tx3 are notarized <-- "confirm maximal lucky sequence"
+    * tx4 is not yet
+    * tx5, tx6 are notarized
+  * crux of the problem: how do we solve the liveness issue if leader is corrupt or offline, or committee is offline?
+  * blockchain collects evidence of an attack in "fast path", and upon detecting that we "enter the slow mode" via the blockchain. Once in the slow-mode, can use a smart-contract to elect a new leader and switch back to the fast-path.
+  * how to detect failure of the "fast path"? 
+    * the faulty nodes must not implicate honest leader. should be robust.
+    * miners must tell blockchain all the notarized and unnotarized tx, not just the confirmed tx as in traditional blockchains.
+    * if in a block, one observes an unconfirmed tx, then inspect k more blocks: and see that tx3 has still not appeared in a "lucky sequence" => fast-path has failed. If leader had been honest and online, and also the committee, then the unconfirmed-tx would have been confirmed by now => are in failure mode.
+  * how does one enter slow mode?
+    * nodes have different logs when entering slow mode. need to decide what is the cutoff. its an "agreement problem" in itself.
+    * introduce a "grace period" of k blocks (e.g. k = 6 or 10) ... and some more details
 
-Classical: e.g. pbft, paxos. Are fast but complex.
-Blockchains: e.g. "mathematics behind blockchains"[GKL'15][PSS'17]. Are simple, robust, but slow.
-- are wasteful? 
-assume: can remove pow from blockchains ("sleepy consensus" - PS16)
-some of the slowness is inevitable - there's some paper about this [ come back to this ]
-
-1. voting based protocol
-leader proposes (Seq, txs)
-everyone votes, but one can have a bad tx in it?
-honest nodes vote uniquely
-honest leader = consistency and liveness, 
-but dishonet leader = consistency but no liveness
-
-in classical consensus, this voting has a simple normal path, but when something goes wrong, the recovery path is very complicated
-e.g. chain.com only implemented the simple normal path, but not practical when so many actors involved (100 banks) to recover with.
-
-high-level idea with thunderella is to replace complicated recovery path with a blockchain.
-* simple and robust as a blockchain
-* in optimistic case, need 2-3 "actual network rounds"
-* in attack case, fallback to underlying blockchain
-
-ethereum scenario: leader, blockchain and committee (e.g. stakeholders)
-assumptions: assume miners are majority honest, and committee is majority honest (but need not be online)
-
-attempt 1: vote on blocks, confirm a block upon collecting enough votes by the committee.
-problem: let's imagine blockchain forks in the day (due to network delay), so people who made fork A are now inconsistent with fork B that later won out. So, even if it worked, must wait for 1 block interval.
-
-attempt 2: leader proposes (seq, txs) and everyone votes on it
-for a tx to become "notarized", it needs 2/3 of committee to vote
-
-let's imagine 
-tx1, tx2, tx3 are notarized <-- "confirm maximal lucky sequence"
-tx4 is not yet
-tx5, tx6 are notarized
-
-blockchain collects evidence of an attack in "fast path", and upon detecting that we "enter the slow mode" via the blockchain. 
-
-how to detect failure of the "fast path"? 
-the faulty nodes must not implicate honest leader. should be robust.
-* miners must tell blockchain all the notarized and unnotarized tx.
-* inspect k more blocks: and see that tx3 has still not appeared in a "lucky sequence"
-
-how does one enter slow mode?
-nodes have different logs when entering slow mode. need to decide what is the cutoff. its an "agreement problem" in itself.
-introduce a "grace period" of k blocks (e.g. k = 6 or 10)
-
-1. single round of viting when things are good
-2. use blockchain to "view change" when things go bad
+Summary:
+1. when things are good: single round of voting when things are good
+2. when things are bad: use blockchain to "view change" when things go bad 
 
 Insights gained:
-1. claim: new theoretical paradigm. In the old consensus, we have an asynchronous world, where the "bad path" makes solving this problem hard. with blockchain, we use a synchronous protocol.
-"block interval must be constant time (O(1)) larger than max network delay"
-"permissionless consensus has to be synchronous"
+1. claim a new theoretical paradigm. 
+  * In the old consensus, we have an asynchronous world, where the "bad path" makes solving this problem hard. 
+  * with blockchain, we use a synchronous protocol.
+2. "block interval must be constant time (O(1)) larger than max network delay"
+  * "permissionless consensus has to be synchronous"
 
-traditionally, we overlook synchrony because it is slow as far as common wisdom goes.
-but this may not be correct. Via thunderella you can live in async "fast" land normally but can fallback into simple and robust synchronous protocol.
-
-jobs at thundertoken.com :-)
+* traditionally, we overlook synchrony because it is slow as far as common wisdom goes.
+* but this may not be correct. Via thundertoken you can live in async "fast" land normally but can fallback into simple and robust synchronous protocol.
 
 q. what happens when underlying blockchain gets forked in the grace period?
 a. grace-period should contain enough blocks (k should be sufficiently large). blockchain protocol is such that if you wait long enough then this is okay.
@@ -664,11 +681,11 @@ Talk 7: smart signatures, experiments in authorization {#talk7}
 ------
 By Christopher Allen, blockstream
 
-demo validitity of a message, like RSA and standard is X.501
+demo validity of a message, like RSA and standard is X.501
 Trust policy: defined and limited by third-parties like a Certificate Authority and an app/browser/os
 
 modern crypto allows: multi-sig, ring sig, blind sig, 
-traditional sig: authenticate who signed message, and ceritfy that the signing part is authorized to do the task
+traditional sig: authenticate who signed message, and certify that the signing part is authorized to do the task
 
 smart sig: core use - also authorization
 * additional parties can be authorized
@@ -688,9 +705,9 @@ and optionally permanently pass control (e.g. employment changes)
 * transactional support: signatures are part of a larger process, prvode specific tx states exist or test against oracles. For instance: prove provenance of art (via transaction history)
 
 language requirement:
-* composable: need simple data structures (stacks, lists, etc.), constrained set of operations to allow security review. like forth,s ceheme, haskell.
+* composable: need simple data structures (stacks, lists, etc.), constrained set of operations to allow security review. like forth, scheme, haskell.
 * inspectable: auditable by a programmer.
-* provable: should be formally analyzable and support tools to discover hidden bugs
+* provable: should be formally analyzable and support tools to discover hidden bugs.
 
 system requirements:
 * deterministic: script must produce same result.
