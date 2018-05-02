@@ -4,7 +4,7 @@ title: Stanford BPASE 2018 Day One
 ---
 
 
-You can find the program for the conference and slides+videos [here](https://cyber.stanford.edu/bpase18).
+You can find the program for the conference and all slides and videos [here](https://cyber.stanford.edu/bpase18).
 
 I've written this as a companion to the talks, mainly as a tool for me to ensure i absorb the material, and to refer back to later. If it helps the broader community, and i hope it does, then awesome! Please direct any feedback to me on [twitter](https://twitter.com/savils).
 
