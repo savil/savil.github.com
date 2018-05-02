@@ -1127,16 +1127,18 @@ challenges
   * solution: "submarine sends" see article on hackingdistributed.com
 
 Bug witholding and commit-reveal:
-Solution 1: to claim bounty at time T, must commit to bug at T-1 time
-Problem: attacker commits in every round, and only reveals if someone else does
 
-Solution 2: to commit, must pay $$ (in some verifiable way)
-Problem: if committments are visible on chain, then attacker waits for someone else to commit and does so at the same time.
+  - Solution 1: to claim bounty at time T, must commit to bug at T-1 time
+    - Problem: attacker commits in every round, and only reveals if someone else does
 
-Solution 3: hide commitments (e.g. proof of burn to random address)
-Problem: is wasteful
+  - Solution 2: to commit, must pay $$ (in some verifiable way)
+    - Problem: if committments are visible on chain, then attacker waits for someone else to commit and does so at the same time.
 
-submarine sends (post-metropolis version)
+  - Solution 3: hide commitments (e.g. proof of burn to random address)
+    - Problem: is wasteful
+
+**submarine sends** (post-metropolis version)
+
 goals:
 1. only allow committed-users to send a transaction to C
 2. being eternally committed is expensive
@@ -1144,8 +1146,8 @@ goals:
 4. money is not wasted
 
 submarine sends:
-Phase 1: compute: addr = Hash(ContractAddr, nonce, code) and send $$ to addr
-to an attacker, this looks like some random address on the network, a fresh address that hasn't existed before. this kind of tx happens a lot in ehtereum so cannot ditinguish this send from other txs.
+ * Phase 1: compute: addr = Hash(ContractAddr, nonce, code) and send $$ to addr
+   * to an attacker, this looks like some random address on the network, a fresh address that hasn't existed before. this kind of tx happens a lot in ehtereum so cannot ditinguish this send from other txs.
 
 Phase 2: reveal addr to contract
   * C verifies that addr got $$ in phase 1
