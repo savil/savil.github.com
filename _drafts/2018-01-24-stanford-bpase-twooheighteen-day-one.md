@@ -4,11 +4,26 @@ title: Stanford BPASE 2018 Day One
 ---
 
 
-You can find the program for the conference and slides/videos [here](https://cyber.stanford.edu/bpase18).
+You can find the program for the conference and slides+videos [here](https://cyber.stanford.edu/bpase18).
+
+I've written this as a companion to the talks, mainly as a tool for me to ensure i absorb the material, and to refer back to later. If it helps the broader community, and i hope it does, then awesome! Please direct any feedback to me on [twitter](https://twitter.com/savils).
+
+Table of Contents:
+-------
+
+* [Talk 1: Game theory and network attacks: how to destroy bitcoin](#talk1)
+* [Talk 2: State of the art attacks on secure hardware wallets](#talk2)
+* [Talk 3: Smart contracts for bribing miners](#talk3)
+* [Talk 4: Formal Barriers to Proof of Stake Protocols](#talk4)
+* [Talk 5: Programming incentives: an intro to cryptonomics, on Casper POS in Ethereum](#talk5)
+* [Talk 6: ThunderToken: blockchains with optimistic instant confirmation](#talk6)
+* [Talk 7: Smart signatures, experiments in authorization](#talk7)
+* [Talk 8: Hardening Lightning](#talk8)
+* [Talk 9: Enter the Hydra: towards principled bug bounties and exploit-resistant smart contracts](#talk9)
 
 Intro talk {#intro}
 -------
-by Byron Gibson (i think)
+by [Byron Gibson](https://twitter.com/byrongibson)
 
 This conference deals with a few kinds of security:
 * data integrity
@@ -63,9 +78,9 @@ formal model:
 * The honest network's hash power can get split between honest network and selfish network, assuming "high connectivity" by the attacker.
 
 Stubborn strategies:
-  * lead stubborn mining: if private-chain has a lead, and honest chain mines a block, then private chain only reveals one block and not all of its lead. This way honest network may keep mining (partly, because there are now two competing chains and hash power will get divided), and the private chain gets a chance to invalidate several honest blocks.
-  * equal fork stubborn: if private-chain is one ahead, and honest chain mines a block, and such a race is happening, then when private-chain mines a new block it withholds it until the honest chain also mines a new block. This way, can again hope to invalidate multiple honest blocks.
-  * trail stubborn: even if the honest network is one ahead, the attacker continues trying to mine on its private chain. This strategy is abandoned when the private chain is two blocks behind the honest chain.
+  * **lead stubborn mining**: if private-chain has a lead, and honest chain mines a block, then private chain only reveals one block and not all of its lead. This way honest network may keep mining (partly, because there are now two competing chains and hash power will get divided), and the private chain gets a chance to invalidate several honest blocks.
+  * **equal fork stubborn**: if private-chain is one ahead, and honest chain mines a block, and such a race is happening, then when private-chain mines a new block it withholds it until the honest chain also mines a new block. This way, can again hope to invalidate multiple honest blocks.
+  * **trail stubborn**: even if the honest network is one ahead, the attacker continues trying to mine on its private chain. This strategy is abandoned when the private chain is two blocks behind the honest chain.
 
 ### selfish mining defenses ###
 * uniform tie breaking:
@@ -73,7 +88,7 @@ Stubborn strategies:
      * Prevents attacker from benefiting from additional network connectivity.
      * some disagreement in literature on profit threshold. Original authors claim this raises threshold from 0% to 25%, others say: 23.2%.
 
-* unforgeable timestamps (Ethan heilman 2014)
+* unforgeable timestamps (Ethan Heilman 2014)
   * each miner uses block with fresher timestamp
   * raises profit-threshold to 32%
 
@@ -151,7 +166,9 @@ takeaway: social structure is important. world is not rational.
 
 Talk 2: State of the art attacks on secure hardware wallets {#talk2}
 ------------
-by Charles Guillemet, CSO at Ledger
+by Charles Guillemet, CSO at Ledger. [video](https://www.youtube.com/watch?v=VgIPR37glPM&feature=youtu.be)
+
+I'd recommend just watching this talk. The speaker was slow and clear, and gave a great overview of the security threats. Recently, there was an [interesting attack](https://saleemrashid.com/2018/03/20/breaking-ledger-security-model/) published on the Ledger wallet, whose details are a handy companion to this talk.
 
 Outline:
 * intro
@@ -162,13 +179,13 @@ Outline:
 * perturbation attacks
   * principles
   * set top box examples
-* side channel attacks (?)
+* side channel attacks
 ...
 
 
 Ledgers have:
 * secure element (used in smartcards)
-  * used for sim, passport, banking cards, TPM (??)
+  * used for sim, passport, banking cards, TPM (Trusted Platform Module)
   * store private key, and signature computed within here
 * pin code : 4-8 digits
 * malware proof: designed to protect on untrusted computer
@@ -382,7 +399,7 @@ future work:
 
 Talk 4: Formal Barriers to Proof of Stake Protocols {#talk4}
 ------------
-By Jonah Brown-Cohen et al
+By [Jonah Brown-Cohen](https://people.eecs.berkeley.edu/~jonahbc/) et al
 
 Proof of Stake:
 * random miner chosen probabilistically proportional to wealth.
@@ -423,10 +440,10 @@ These assumptions hold for pow protocols like btc. These assumptions means we do
 POS, has two functions:
 1. validating function V
   * efficiently computable by every protocol participant
-  * B with A = Pred(B) is valid at t if and only if 
-    * V(B) = 1
-    * Miner(B) = Owner(c(B)) at A
-    * t(A) <= t(B) <= t
+  * `B` with `A = Pred(B)` is valid at t if and only if 
+      1. `V(B) = 1`
+      2. `Miner(B) = Owner(c(B))` at A
+      3. `t(A) <= t(B) <= t`
 2. mining function M: inputs are B, coin c, timestamp t => outputs new block
   * M(A, c, tv) is efficiently computable by owner 
   * if there is a valid block, then mining function should actually mine something
@@ -435,29 +452,34 @@ Longest-chain protocol
 
 * Properties:
   * Property 1: D-Locally Predictable
+
     * For coin c, owner(c) can predict D blocks in advance that she is eligible to use c to mine a block
     * every POS protocol is 1-locally predicatable.
     * but 1-local predictability can be chained on a private fork, letting one predict far in advance how many future blocks one can mine.
 
+
   * Property 2: D-Globally predictable 
+
     * every protocol participant can predict whether owner(c) is eligible to use c to mine, D blocks in advance.
 
-  * Two extreme xamples:
-    
-    1. V(B) = 1 <=> Hash(c(B), t(B)) < Threshold => globally predictable for all D
-      * this was original POS proposal, where this Hash function replaces the btc-nonce.
-    2. protocol where:
-      * every block contains signature s(B)
-      * M(A, c, t) = B where s(B) = SIG(Hash(s(A), t), where SIG is signed by private key of owner(c)
-      * V(B) = 1 <=> H(s(B)) < T
-      * this is not globally predictable for anyone. It is 1-locally predictable.
-      * based on Algorand's protocol
-      * here s(A) becomes the source of pseudorandomness
 
   * Property 3: D-recent
+
     * miner of C cannot efficiently predict D blocks in advance if she is eligible to mine a block.
     * negation of D-locally predictable
     * blocks [1, D-1] provide the source of pseudo-randomness
+
+  * Two extreme examples:
+    
+    1. `V(B) = 1 <=> Hash(c(B), t(B)) < Threshold =>` globally predictable for all D
+      * this was original POS proposal, where this Hash function replaces the btc-nonce.
+    2. protocol where:
+      * every block contains signature s(B)
+      * `M(A, c, t) = B` such that `s(B) = SIG(Hash(s(A), t)`, where SIG is signed by private key of owner(c)
+      * `V(B) = 1 <=> H(s(B)) < T`
+      * this is not globally predictable for anyone. It is 1-locally predictable.
+      * based on Algorand's protocol
+      * here s(A) becomes the source of pseudorandomness
 
 Attack: predictable selfish mining:
 * withhold a newly mined block B and secretly try to mine on top of it
@@ -509,12 +531,12 @@ q: smaller the D, may affect entropy of seed that is used to randomly select min
 q: asynchrony plays a role.
 the more synchronicity you assume, the more you can eliminate selfish mining
 
-q: check out Dfinity (not a question)
+q: check out Dfinity (not a question!)
 * but [the paper is here](https://medium.com/dfinity/dfinity-white-paper-our-consensus-algorithm-a11adc0a054c)
 
 Talk 5: programming incentives: an intro to cryptonomics {#talk5}
 --------
-by Karl Floersch, Ethereum Foundation
+by [Karl Floersch](https://twitter.com/karl_dot_tech), Ethereum Foundation
 
 On casper protocol
 
@@ -540,7 +562,7 @@ hybrid casper:
 
 why deposits?
 * see validators as evil. 
-* Give larger incentives to work with. 
+* give larger incentives to work with. 
 * impose large penalty on bad actors.
 
 mechanism:
@@ -555,12 +577,12 @@ slashing conditions
 * if there are two chains that are finalized, then 1/3 of validator deposits are lost/"slashed"
   * no double votes => validator cannot vote on two conflicting chains
   * no surround vote => cannot vote on two chains such that there's a gap in between
-* see video about this
+* see video about this!
 
 designing casper FFG by Vlad and Vitalik
 * "minimal slashing conditions" => 4 conditions
 * came with formal verification 
-* but we should use it when human intuitions are not enough, not a replacement for intuition
+* but we should use formal-verification when human intuitions are not enough, not a replacement for intuition!
 
 "parameterizing casper: decentralization/finality tradeoff"
 
@@ -593,11 +615,14 @@ q: what is the simulation environment or research process?
 
 Talk 6: ThunderToken: blockchains with optimistic instant confirmation {#talk6}
 -----
-By Elaine Shi, Cornell and Thundertoken
+By [Elaine Shi](https://twitter.com/ElaineRShi), Cornell and Thundertoken
+
+This talk was interesting because it bridges the world of traditional distributed consensus systems, and finds a way to use a blockchain to improve it. A neat idea that could be useful in smaller, permissioned networks.
+
 
 * what this talk is about:
-  * Doing fas, block confirmation times. 
-  * talk is about: core consensus and crash course on dist consensus
+  * Doing fast, block confirmation times. 
+  * on core consensus and crash course on distributed consensus
   * not about: incentives and governance policy
 
 * motivation: 
@@ -675,105 +700,116 @@ Insights gained:
 * but this may not be correct. Via thundertoken you can live in async "fast" land normally but can fallback into simple and robust synchronous protocol.
 
 q. what happens when underlying blockchain gets forked in the grace period?
+
 a. grace-period should contain enough blocks (k should be sufficiently large). blockchain protocol is such that if you wait long enough then this is okay.
 
 Talk 7: smart signatures, experiments in authorization {#talk7}
 ------
-By Christopher Allen, blockstream
+By [Christopher Allen](https://twitter.com/ChristopherA), formerly blockstream
 
-demo validity of a message, like RSA and standard is X.501
-Trust policy: defined and limited by third-parties like a Certificate Authority and an app/browser/os
+* signatures: demonstrate validity of a message 
+  * examples = using RSA,  X.501 (Standard)
+* Trust policy: defined and limited by third-parties like a Certificate Authority and an app/browser/os
+* modern crypto allows many variations like multi-sig, ring sig, blind sig.
+* traditional signatures: authenticate who signed message, and certify that the signed part is authorized to do some task.
 
-modern crypto allows: multi-sig, ring sig, blind sig, 
-traditional sig: authenticate who signed message, and certify that the signing part is authorized to do the task
-
-smart sig: core use - also authorization
+smart signatures: core use - authorization
 * additional parties can be authorized
 * more operators like OR and AND
 
-Difference: trust policy not interpreted by a CA or code by app/browser/os
-* trust policy is embodied by the signer into the signature itself.
+Main difference from traditional signatures: 
+ * trust policy not interpreted by a CA or code by app/browser/os
+ * trust policy is embodied by the signer into the signature itself.
 
-inspiration: btc tx signature
-has "Script" a stateless predicate language. many use-cases.
+inspiration: 
+  * btc tx signature
+  * has "Script" a stateless predicate language. many use-cases.
 
-usecase: 
+use-cases: 
 * multifactor expressions
 * signature delegation, and limit the time for it, or limit to quantity of money, 
 and optionally permanently pass control (e.g. employment changes)
 * dev release/CI toolchain
-* transactional support: signatures are part of a larger process, prvode specific tx states exist or test against oracles. For instance: prove provenance of art (via transaction history)
+* transactional support: 
+  * signatures are part of a larger process: provided specific tx states exist or test against oracles. 
+  * For instance: prove provenance of art (via transaction history)
 
-language requirement:
-* composable: need simple data structures (stacks, lists, etc.), constrained set of operations to allow security review. like forth, scheme, haskell.
-* inspectable: auditable by a programmer.
-* provable: should be formally analyzable and support tools to discover hidden bugs.
+Language requirements:
+* **composable**: need simple data structures (stacks, lists, etc.), constrained set of operations to allow security review. Like in Forth, Scheme, Haskell.
+* **inspectable**: auditable by a programmer.
+* **provable**: should be formally analyzable and support tools to discover hidden bugs.
 
-system requirements:
-* deterministic: script must produce same result.
-* bounded: execution should not exceed cpu or memory limits, and size should be minimal and bounds should be deterministic
-* efficient: no requirements on difficulty to create signature, but cannot be costly to verify.
+System requirements:
+* **deterministic**: script must produce same result.
+* **bounded**: execution should not exceed cpu or memory limits, and size should be minimal and bounds should be deterministic
+* **efficient**: no requirements on difficulty to create signature, but cannot be costly to verify.
 
-privacy?
-tradeoff between flexibility and privacy. Smart signature may allow correlation. Reduces substituability and may break fungibility and beaer aspets.
-advice: limit sharing an execute off-chain. be transparent and deliberate.
+What about privacy as a requirement?
 
-experiment: bitcoin Script
-+ deterministics, bounded, efficient
-? is it composable, and inspectable?
-- not provable
-no standalone version
+  * there is a tradeoff between flexibility and privacy. A Smart signature may allow correlation. Reduces substituability and may break fungibility and bearer aspects.
+  * advice: limit sharing and execute off-chain. Be transparent and deliberate.
+
+experiment: Bitcoin Script
+
+  - (+) deterministic, bounded, efficient
+  - (?) is it composable, and inspectable?
+  - (-) not provable 
+  - no standalone version
 
 experiment: Ivy, by chain.com
-compiles to btc script. easier syntax, static types.
-+ inspectable btc Script
-- same limitations as btc Script
-whitepaper, full playground avaiblable
+
+  - compiles to btc script. easier syntax, static types.
+  - (+) inspectable -> compiles to btc Script
+  - (-) same limitations as btc Script
+  - whitepaper, full playground available
 
 experiment: Dex
-Determistic Predicate by Peter Todd
-Scheme-like lambda calculus
-blogpost, no whitepaper or code
 
-_ composable, determistic, efficient, bounded
-kinda: inspectable, provable
+  - Determistic Predicate by Peter Todd
+  - Scheme-like lambda calculus
+  - blogpost, no whitepaper or code
+  - (+) composable, determistic, efficient, bounded
+  - kinda: inspectable, provable
 
-experiment: Simplicity
-by Russell O'Conor
-Sequent Calculus
-+ provable, deterministic, bounded, efficient, composable
-kinda: inspectable
-whitepaper, no code
+experiment: Simplicity, by Russell O'Conor
+
+  - Sequent Calculus
+  - (+) provable, deterministic, bounded, efficient, composable
+  - kinda: inspectable
+  - whitepaper, no code
 
 experiment: Sigma-State
-Alexander Chepurnoy, optimized for zk-proofs, ring and threshold sigs, strongly typed
-+ inspectable, composable, deterministic, efficient
-kinda: provable, bounded
+
+  - Alexander Chepurnoy, optimized for zk-proofs, ring and threshold sigs, strongly typed
+  + inspectable, composable, deterministic, efficient
+  kinda: provable, bounded
 
 experiment: Michelson
-by Tezos, inspired by OCaml, is Stack-based like Script
-+ composable, inspectable, efficient
-kinda: provable, bounded, deterministic
-whitepaper, playground
+
+  - by Tezos, inspired by OCaml, is Stack-based like Script
+  - (+) composable, inspectable, efficient
+  - kinda: provable, bounded, deterministic
+  - whitepaper, playground
 
 experiment: crypto conditions
-by Ripple for Interledger
-not a language, a JSON description
-easier testing, limited flexibility
-+ boundded, efficient, deterministic
-kindaL inspectable
-- composable, provable
 
-... other "watching"
+  - by Ripple for Interledger
+  - not a language, a JSON description
+  - easier testing, limited flexibility
+  - (+) boundded, efficient, deterministic
+  - kinda: inspectable
+  - composable, provable
+
+
 watching: bamboo on evm
-jsript like
-explicit state transitions
-avoids reentrancy
+
+  - jsript like
+  - explicit state transitions
+  - avoids reentrancy
 
 open questions:
 * context
-  * internal references?
-   * lists, trees, acyclic graphs
+  * internal references? lists, trees, acyclic graphs
   * run time context?
   * external process state?
 * oracles:
@@ -799,7 +835,7 @@ Language geeks: go to #RebootingWebOfTrust event march 6-8 in Santa Barbara
 
 q. (ken huang) can one extend X.501 to have these scripts?
 a. there has been some talk about this.
-more interested in "verifiable creddentials or claims" community, using JSON that can be signed as a graph-signature.
+more interested in "verifiable credentials or claims" community, using JSON that can be signed as a graph-signature.
 
 q. (ken huang)...?
 a. idea behind "self sovereign" identity. something something.
@@ -809,16 +845,238 @@ a. not turing complete, it unwinds all loops etc.
 and people want to use it for provable predicate scripts, but clearly can be used for more.
 still suffers from re-entrancy
 
-q. what was your role in "sovereign foundation"? you'd mentionedit and i missed it.
+q. what was your role in "sovereign foundation"? you'd mentioned it and i missed it.
 "sovereign foundation" are part of RebootingWebOfTrust community and working with W3C who have given permissions to move it forward as a "work item". 
 
 
 Talk 8: Hardening Lightning {#talk8}
 ---------------------------------
-Olaoluwa Osuntokun
+[Olaoluwa Osuntokun](https://twitter.com/roasbeef), Lightning Labs. [video](https://www.youtube.com/watch?v=V3f4yYVCxpk&feature=youtu.be). If you are like me, then you'll watch this video at 0.75x speed.
 
-TODO savil. Unfortunately this talk went completely over my head. Speaker was clearly knowledgable but went too fast for me to keep up. Will need to read paper or watch the video/slides when posted.
+To see the mechanism behind the Lightning Network, see this excellent [Bitcoin Magazine article](https://bitcoinmagazine.com/articles/understanding-the-lightning-network-part-building-a-bidirectional-payment-channel-1464710791/). TLDR; payment channels, connect them, route transactions across them.
 
+This talk is the only one dealing with a production system, and goes into many improvements that could be done to many aspects of the LN. Its dense: each improvement has an underlying concept and current implementation that one needs to understand first.
+
+Also, see a more recent proposal similar to this called [Eltoo](https://blockstream.com/2018/04/30/eltoo-next-lightning.html)
+
+Talk Outline:
+1. Overview of Lightning's Security Model
+2. Hardening Contract Breach Defense - what to do in the face of a big backlog of transactions?
+3. Reducing Client Side History Storage
+  A. a new channel design! It makes channels more succint, storing less history, makes outsourcing more efficient.
+4. Scaling Outsourcing (WatchTower++)
+5. On-chain Succintness
+  A. Better Fee control
+
+Think of Lightning as four layers:
+1. Blockchain Layer: bitcoin!
+2. Channel Link Layer: opening and updating some channel between me and Bob
+3. End-to-End Routing Layer: HTLCs (Hash Time Lock Contracts)
+4. Application Layer: exchanges, etc. i.e. [LApps](https://dev.lightning.community/lapps/)
+
+Security Model:
+  * Bitcoin is the dispute mediation system:
+    * contract creation+enforcement happens onchain
+    * contract execution happens offchain
+    * secure chain acts as the "trust anchor"
+
+  * The easy way or the hard way:
+    * easy way: optimistically we only require on-chain enforcement in the case of a dispute, and everything else can happen offchain
+    
+  * For a dispute, we assume we can write to the chain **eventually**(T, a time parameter)
+    * T = csv_value (see CheckSequenceVerify time-lock in the Bitcoin Magazine article above)
+    * Configurable, determines chain watching frequency
+    * this is the time-out period within which any dispute must be handled 
+
+  * We assume participants don't collude with pool-operators or miners. Strong non-censorship assumption.
+
+Hardening Contract Breach Defense (Strategy):
+  * Active breach defense:
+    * A cheater may make invalid state attestations on the main blockchain, so LN users need to actively watch the main blockchain
+    * Defenders need to provide evidence to the blockchain showing a violation of signed contract
+
+  * in face of a large backlog of transactions, or low fee rate:
+    * its possible one is unable to confirm the "justice tx" in time
+    * failure to provide evidence, allows cheater to succeed! :-(
+
+  * Some properties of LN we should bear in mind:
+    * Cheater is locked into fixed-fee due to commitment structure
+    * Cheater only has access to their active balance
+    * Defender has access to entire balance in channel
+  * Scorched-Earth approach
+    * strategy: iteratively siphon cheater's funds to be mining fees!
+    * end game: all cheater's funds go to miners, defender made whole
+      * cheater needs to pay fees that are more than the balance to succeed
+  * as a result of sending the cheater's funds as miner-fees, the transaction gets prioritized by miners over the rest of the backlog
+
+Reducing ClientSide History Storage
+  * Lightning's contract execution is local
+    * clients need to store current-state
+    * clients need to store prior states for possibly fixing breaches onchain
+    * "shadow chain" only manifested on mainchain in event of a conflict. 
+      * the "shadow chain" is this set of alternate transactions, which let a Defender regain the funds in the channel, against a Cheater.
+
+  * Channels' state transitions
+    * update to current commitment (add/remove HTLCs, new contracts, etc.)
+    * each state transition produces a new state
+    * need to keep track of portion of prior state in order to be able to enforce
+
+  * Goal: reduce per-channel state for scalability
+    * allows for "lighter" light clients
+    * high-throughput backbone nodes may see considerable savings
+
+  * Minimally, one needs to store the current state, which is required to be able to go onchain for enforcement/delivery
+
+Overview of Commitment invalidation:
+  * each state transition, invalidates the prior state
+  * this is critical for safety of bi-directional channels
+  * incentives promote forward-progression
+    * if you violate the contract, you get slashed!
+    * worst-case enforcement: party attempts to claim the prior state
+  * naive method: keep all prior states
+    * in high-velocity scenario, quickly becomes untenable
+    * would then require frequent resets to abandon prior state -> unnecessary on-chain control traffic!
+
+History of Prior Succint Commitment Invalidation
+  1. decrementing sequence-locks (using [BIP 68](https://github.com/bitcoin/bips/blob/master/bip-0068.mediawiki)).
+     * how: use relative time-locks such that the latest state can go in before prior states
+     * downside: this design limits the number of possible updates
+
+  2. Commitment invalidation tree.
+     * used in [Duplex Payment Channels](https://www.tik.ee.ethz.ch/file/716b955c130e6c703fac336ea17b1670/duplex-micropayment-channels.pdf)
+     * how: commitments are structured in a tree such that the parent must be broadcast before the leaf.
+       * in this design, the Roots have decrementing time-lock with a "kick off" that allows for indefinite lifetime
+     * downside: has a big on-chain footprint
+  3. Commitment Revocations: hash or key-based, is the current channel design
+     * how: every state has a public-key, and to move on to the next state, one must reveal the secret-key of the prior state.
+       * they've figured out a way to generate this public-key in a deterministic way: can walk down the client's constant-size state to generate secrets, and the receiver can collapse these down. (gah, need more details here!!) 
+     * downside: must critically store O(log n) secrets of the remote party. More complex key derivation.
+       * Also, has asymmetric state between the two channel parties. This is because of the way "blame" can be ascribed to avoid cheating. This is bad because if there is a network with N participants, then keeping track of state for N grows combinatorially.
+  * GOAL:
+    1. symmetric state
+    2. constant storage for prior states
+  
+Commitment invalidation in Lightning 1.0 (current Lightning Network):
+  * Lightning 1.0 uses key-based commitment invalidation
+    * each party has multiple static EC points aka "basepoints".
+    * Static points are tweaked with fresh randomness for each state
+    * the randomness is derived from a verifiable PRF:
+       * currently using a multidimensional hashchain: shachain(k,i): a structure such that element number 10 can derive everything before it. 
+
+  * <insert formulas for doing Key revocation and validation>
+ 
+  * Downsides:
+    1. Client storage: C + O(log k)
+    2. Outsourcer Storage: O(M) + O(N) + O(log(k))
+    3. Complex key derivation
+    * where
+      * N = num states
+      * M = number of historical HTLCs
+      * k = number of state updates ...ever!
+      * C = current-state
+
+OP_CHECKSIGFROMSTACK
+  * strawman proposal for a new Bitcoin opcode
+  * main idea is to give the ability to validate signatures from arbitrary messages. Can do delegation ("this is a public key signed by Bob and we're going to use it"), or Oracles ("this is an integer signed by Bitfinex and we're going to use it"), or have "blessed message structures" ("protocol has an opaque message but having structure, and shows as evidence that this must be signed by these two participants in the future")
+  * current bitcoin signature validation scheme already has a much simpler implicit message that this concept extends.
+
+Signed Sequence Commitments:
+  * Definition:
+    * a generic commitment state invalidation scheme
+    * openings of signed commitments replace revocation-keys
+  * state transition:
+    1. Reveal prior commitment opening:
+      a. open(c) = (n, r), where n = state number, r = randomness
+    2. embed `c` within commitment output script
+    3. sign the next commitment: sig(A+B, commit(r, n++)), where A = Alice's signature, B = Bob's signature
+  * To enforce:
+    * Present (sig, c, n, r) to say "i know of n opening to a signed commitment of a newer sequence-number"
+    * each state creates new signed-sequence, only need to store the latest one!
+  * Advantages of this design:
+    1. O(1) constant size storage for client and outsourcer
+    2. simpler client-side implementation
+    3. uses same [BOLT #2 state machine](https://github.com/lightningnetwork/lightning-rfc/blob/master/02-peer-protocol.md)
+      * BOLT is the spec for the Lightning Network
+
+Scaling Outsourcing: a review of state outsourcing
+  * LN's security model assumes mining is decentralized, and there is on-chain liveness.
+     * on-chain censorship is a major threat
+     * CSV value T acts as a time-based security parameter for the Defender against the Cheater. This is configurable on a per-channel basis.
+  * For participants who are not eternally vigilant, which is most folks, they can outsource to a WatchTower
+    * under current design: 
+      * for commitments:
+        * send initial base-points. This is needed to construct the "witness script template": 
+        * For each state, send a new signature for the "justice transaction". This is the transaction that protects against the Cheater.
+        * send description of "justice transaction", assuming both sides are using [BIP 69](https://github.com/bitcoin/bips/blob/master/bip-0069.mediawiki)
+          * BIP69 ensures a deterministic ordering of tx inputs and outputs, originally meant for ensuring tx-privacy in bitcoin wallets.
+      * for HTLCs:
+       * HTLCs require a new signature for every single HTLC that is there.
+       * So, encrypt half the blob of the transaction with txid[:16] (which cannot be predicted), and WatchTower can check if this decrypts with the txid on the chain.
+    * possible mechanisms:
+      1. authentication: could use ZKP's 
+      2. compensation: pay-per-state, only provide bonus ipon action, subscription, etc.
+
+Scaling Outsourcing: lighter outsourcers
+  * With Signed Sequence Commitments
+    * only need single (c,n,s,r) tuple per-client. O(1) constant size space. 
+    * also able to skip outsourcing states. The older shachain approach needed every single state to enforce. Now, the LN client can choose to send every 10th state (or any N'th state) and pick some risk-level of being cheated, of their choice.
+  * BUT: the new design, as is, lets outsourcer take all the funds of the Cheater. 
+    * However, one may want to add flexibility here to let the Cheater's funds be split in some proportion between the Client (i.e. the Defender) and the Outsourcer.
+    * can also cleverly use covenants to split the Cheater's funds.  
+
+Scaling Outsourcing: outsourcer incentivization
+  * two ways: pay-per-state or retribution bonus
+  * BUT: retribution bonus would hopefully be minimal since breaches should be unlikely given the HTLC design
+  * pay-per-state:
+   * each outsourcer has a specific kind of e-cash token, and use these to pay the outsourcer 
+   * this decoupling lets the outsourcer payment be done independently from the initial payment
+   * and this opens up other possibilities of business-models for the outsourcer.
+
+Scaling outsourcing: outsourcer static backups
+  * LN wallets have additional storage requirements:
+    1. Static state: parameters for each open channel like who are the recipients, cryptographic keys involved, etc.
+    2. Dynamic state: recovation-keys etc. which we would delegate to Outsourcers.
+  * We could encrypt this wallet-state and also send it to the Outsourcer
+  * And then can have cryptoeconomic schemes to ensure the Outsourcer is being honest:
+    1. proof-of-retrievability protocols can be used in challenges that the Outsourcer needs to satisfy at some random frequencies.
+    2. can have some Providers who regularly issue these challenges and notify the client if the Outsourcer goes rogue.
+
+Onchain Succintness: 2-stage HTLCs
+  * in current commitment design ([BOLT #3](https://github.com/lightningnetwork/lightning-rfc/blob/master/03-transactions.md))
+    * tries to solve an issue were when the CSV is large, the CLTV must be much larger 
+    * solved by making HTLC-claiming a 2-stage state machine:
+      1. have convenants that are multi-signature and off-chain
+      2. attest (broadcast) -> delay (csv) -> claim (sweep)
+   * downsides:
+     1. requires a distinct transaction for each HTLC
+     2. must store signature for each HTLC
+     3. new state updates require signing+verifying N signatures, one for each HTLC
+  * Solution:
+   * use actual covenants in HTLC outputs! This eliminates sig+verify for each commitment creation, and eliminates signature storage.
+   * BUT: these don't exist in bitcoin :-(
+  * workaround solution:
+   * make more liberal use of bitcoin flags: sighash_single || sighash_anyonecanpay
+     * sighash_single signs this input, its corresponding output and other inputs partially.
+     * sighash_anyonecanpay signs only the current input.
+     * combining both flags: signs this one input and its corresponding output, and allows anyone to add or remove other inputs.
+     * this allows 2-stage HTLC transitions to effectively happen in a single onchain transaction.
+
+Onchain succintness: multi-party channels
+  * design questions in multi-party channels involve:
+   1. who pays the penalty, 
+   2. if one wants to update their own state, do they need to wait for everyone else to be online 
+  * recent work on this in this paper [Scalable Funding of Bitcoin Micropayment Channel Networks](https://www.tik.ee.ethz.ch/file/a20a865ce40d40c8f942cf206a7cba96/Scalable_Funding_Of_Blockchain_Micropayment_Networks%20(1).pdf)
+  * creates a hierarchy of multi-sig and regular bi-di channels. Can basically embed many channels within other channels using signature-aggregation of the participants in that channel.
+  * downside: with key-based revocations design, it leads to a large number of onchain transactions in worst-case
+  * Solution: reuse Signed Sequence Commitments
+    * has symmetric state, and can maintain constant-sized revocation state independent of number of participants in the channel itself. 
+
+Onchain succintness: Fee control
+  * today, all the fee in the channel is established at the time of channel-creation
+  * but puts burden on the channel participants to anticipate how fees will look in the future when they want to close the channel
+  * instead, can use liberal sighash flags (like sighash_noinput) to allow for fee paying inputs.
+   * the original sighash_noinput proposal is [here](http://bitcoin-development.narkive.com/ByYWXcxA/sighash-noinput-in-segregated-witness)
+   * sighash_noinput only signs the script and not the inputs or outputs. :etting one bind transactions with matching scripts together. This should (how?) enable setting the fees later on.
 
 Talk 9:  Enter the Hydra: towards principled bug bounties and exploit-resistant smart contracts {#talk9}
 ---------

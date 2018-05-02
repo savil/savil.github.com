@@ -1,6 +1,6 @@
 ---
+layout: post
 title: Stanford BPASE 2018 Day Three
-layout:post
 ---
 
 Bulletproofs
