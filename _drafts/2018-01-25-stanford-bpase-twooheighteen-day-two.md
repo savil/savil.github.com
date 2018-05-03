@@ -3,37 +3,55 @@ title: Stanford BPASE 2018 Day Two
 layout: post
 ---
 
-Cryptocurrency privacy: research-based guidelines for protocol designers
+Table of Contents
+----------------
+
+1. [Talk 1: Cryptocurrency privacy: research-based guidelines for protocol designers](#talk1)
+2. [Talk 2: Simplicity: new language for blockchains](#talk2)
+3. [Talk 3: Schnorr signatures for bitcoin: challenges and opportunities](#talk3)
+4. [Talk 4: Spectre, Phantom: BlockDAG Protocols](#talk4)
+5. [Talk 5: A new design for a Blockchain Virtual Machine](#talk5)
+6. [Talk 6: Beyond Hellman's time-memory trade-offs with applications to proofs of space](#talk6)
+7. [Talk 7: Verifiable Delay Functions: Applications and Candidate Constructions](#talk7)
+8. [Talk 8: Settling Payments Fast and Private: Efficient Decentralized Routing for Path-based transactions](#talk8)
+9. [Talk 9: Network and Revive: secure payment hubs supporting Off-Blockchain Rebalancing](#talk9)
+
+Talk 1: Cryptocurrency privacy: research-based guidelines for protocol designers {#talk1}
 ----------------
 By Malte Moser, Arvind Narayanan
 
-anonymity and privacy enhancing techniques
+Anonymity and privacy enhancing techniques
 
-overview
-* adoption of stroong privacy techniques ins low
-* cryptocry privacy is hard, current techniques have weaknesses
+Overview
+* adoption of strong privacy techniques is low
+* privacy in cryptocurrencies is hard, and current techniques have weaknesses
 * path forward: guidelines for protocol designers
 
-anonymity: "is the stae of not being identifiable ithin a set of subjects, the anonymity set" - pfistzman and kohntopp 2001
+Anonymity: 
+- definition: "is the state of not being identifiable within a set of subjects, the anonymity set" - pfistzman and kohntopp 2001
 - depends on the context
 
-observations from looking at old techniques (graphs (amount of cryptography) over time):
+observations from looking at old techniques 
+![image-title-here](/assets/2018-01-25-stanford-bpase-twooheighteen-day-two/talk1_privacy_currencies.png)
+
+* the speaker draws a graph of amount-of-cryptography over time
 * number of techniques has increased over time
 * most techniques in bitcoin go towards obfuscation, while stronger cryptography is used more in altcoins
 
 reasons for low adoption:
 * perf: add overhead to normal tx behavior
 * complexity: 
-  * coordiation and preventing loss of funds in adversarial environment. e.g. consider CoinJoin technique needs to find other peope to hide behind
-     * JoinMarket is marketplace for CoinJoin, where there was a barrier to have so many people, so they offered a list of peers everyone could use, but this gives away the game. Trade off!
+  * coordination and preventing loss of funds in an adversarial environment.
+     * for example, consider the CoinJoin technique. It needs to find other people to hide behind.
+     * JoinMarket is a marketplace for CoinJoin, where there was a barrier to have so many people, so they offered a list of peers everyone could use, but this gives away the game. Trade off!
   * hurts adoption and speed of development. e.g. CoinSwap needs a setup like refund-transaction to ensure people get money back
 * competition
   * PETS address different threat models (PETS = privacy enhancing techniques)
   * negative side-effect: splits anonymity set. Consumers get divided, and hurts the overall protection they offer each other by potentially hiding others.
 * traceability: tradeoff to help law-enforcement versus privacy
-  * law enforcement can be in an elevated position (e.g. requesting more data from Exchanges about actors)
+  * law enforcement can be in an elevated position (e.g. requesting more data from exchanges about actors)
 * disincentive for regulated players to adopt strong techniques
-  * need to comply with rules like money laundering etc
+  * need to comply with rules like money laundering
 
 CryptoCurrency inherits the worst of:
 * data anonimyzation:
@@ -43,10 +61,11 @@ CryptoCurrency inherits the worst of:
   * "anonymity loves company"
 
 Monero:
-* based on a new design called CryptoNote
+* based on a new design called [CryptoNote](https://cryptonote.org)
 * every input links to many outputs (called "mixins"), not just one
 * initially, didn't enforce mandatory number of mixins. So some users may say "right now, not worried about privacy" so may skip this. But this can break anonymity of other users:
-  * if a block has two inputs, but one of those inputs only points here, then we can invalidate the other input!
+  * if a block has two inputs, but one of those inputs only points here, then we can invalidate the other input. 
+  * Because clearly the input which only points here must be the true input, otherwise it is never used!
 * analysis:
   * 66% of inputs had no mixins
   * 62% of inputs are deducible
@@ -56,43 +75,46 @@ Monero:
 
 CoinJoin:
 * multiple users provide inputs
-* tradeoff: a small tx has a limited amount of indistinguishibility, while large tx has  (TODO savil. what is this?)
+* tradeoff: a small tx has a limited amount of indistinguishibility, while large tx has unlinkability.
 * JoinMarket: has participants (takers) who want to do a CoinJoin and makers who will help the takers by being inputs
-* found: default number of partic was 2, and later increased to 4. Most chose default.
+* found: default number of parties was 2, and later increased to 4. Most chose default.
   * certain text combinatorial attacks become feasible.
   * values of inputs and outputs allow attacker to identify the roles (maker versus taker). Usually taker is losing value and has higher-value inputs/outputs. 
   * possible for 67% of all txs, and may allow for tracing through cascades
 
 Payment with BTC ("when cookies meets the blockchain" by Goldfeder et al):
-* e-commerce sites have this flow: product -> cart _> checkout -> payment processor -> receipt
+* e-commerce sites have this flow: product -> cart -> checkout -> payment processor -> receipt
 * every step can leak info to third-parties (e.g. google ads tracking)
 * timing and values allow to later determine corresponding transactions made.
 * can use this correlation to uncover CoinJoin inputs via "intersection attacks"
 
 5 principles for designers:
   1. Be cautious about privacy claims:
-    * based on protocol design may overestimate privacy. Depends on usage patterns, and external environment. validity can only be evaluated empirically.
+     * claims purely based on protocol design may overestimate privacy. 
+     * Depends on usage patterns, and external environment. 
+     * validity can only be evaluated empirically.
  
   2. invite and incentivize researchers to perform independent measurement studies
-    * example1: zcash foundation, and monero funds protocol research
+     * example1: zcash foundation, and monero funds protocol research
 
   3. respect power of defaults:
-    * "anonymity loves company"
-    * user's anonymity depends on behavior and choices of others insystem
+     * "anonymity loves company"
+     * user's anonymity depends on behavior and choices of others insystem
 
   4. allow parameters to change
-    * revisit from time-to-time and llow to change based on empirical evaluations
+     * revisit from time-to-time and allow to change based on empirical evaluations
 
   5. articulate trade-offs
-    * these are inevitable, vis a vis perf and usability
-    * detectability versus unlinkability
+     * these are inevitable, vis-a-vis perf and usability
+     * detectability versus unlinkability
 
 q. LN privacy implications, and improvements
 - tradeoffs can be there. depends on if network is centralized or decentralized.
 
-q. 2 years back people were using miner-fees to do CoinJoin obfuscation. Thoughts? they would launder money through the fees.- some txs have really high fees, so this could be that scenario. Don't have concrete insights into that.
+q. 2 years back people were using miner-fees to do CoinJoin obfuscation. Thoughts? they would launder money through the fees.
+- some txs have really high fees, so this could be that scenario. Don't have concrete insights into that.
 
-q. analysis not including Exchanges. is there a formal way to include the influence the exchanges?
+q. analysis not including Exchanges. is there a formal way to include the influence of the exchanges?
 - exchanges are responsible for a large number of txs, and if they can add privacy techniques that is great, but they may have regulatory limitations
 
 q. implications of designs like MimbleWimble?
@@ -101,7 +123,7 @@ q. implications of designs like MimbleWimble?
 q. lot of parameters may change from empirical analysis. Is there a criteria for how to select these parameters?
 - good question. depends on context.
 
-Simplicity: new language for blockchains
+Talk 2: Simplicity: new language for blockchains {#talk2}
 ---------
 By Russell O'Connor, Blockstream
 
@@ -197,7 +219,7 @@ Formal verification:
     * this gives an end-to-end verification framework
 
 
-Schnorr signatures for bitcoin: challenges and opportunities
+Talk 3: Schnorr signatures for bitcoin: challenges and opportunities {#talk3}
 ------
 By Pieter Wuille et al, Blockstream
 
@@ -236,7 +258,7 @@ summary:
 Reading:
 https://medium.com/@SDWouters/why-schnorr-signatures-will-help-solve-2-of-bitcoins-biggest-problems-today-9b7718e7861c
 
-Spectre, Phantom: BlockDAG Protocols
+Talk 4: Spectre, Phantom: BlockDAG Protocols {#talk4}
 -------
 By Yonatan Sompolinsky, Hebrew Univ of Jerusalem, DAGLabs
 
@@ -344,7 +366,7 @@ q. if topology, where some nodes are very isolated, can they be mistaken to be a
 - both. definition of "honest" means "well connected" and that is up to the implementer of the protocol. will probably be late in the order.
 
 
-A new design for a Blockchain Virtual Machine
+Talk 5: A new design for a Blockchain Virtual Machine {#talk5}
 --------
 By Cathy Yun, Dan Robinson et al, at Chain
 
@@ -422,7 +444,7 @@ q. model a tx with contract. Does that enable formal verification, compared to S
 q. is there persistent store of memory like eth?
 - no global storage. modelled closer to btc with inputs and outputs
 
-Beyond Hellman's time-memory trade-offs with applications to proofs of space
+Talk 6: Beyond Hellman's time-memory trade-offs with applications to proofs of space {#talk6}
 -------
 By Bram Cohen
 
@@ -460,7 +482,7 @@ Outline:
 
   * explanation of proof: ....omitted. 
 
-Verifiable Delay Functions: Applications and Candidate Constructions
+Talk 7: Verifiable Delay Functions: Applications and Candidate Constructions {#talk7}
 -------
 By Ben Fisch
 
@@ -541,7 +563,7 @@ In this work, we will be practical!
 * HashChain with "incrementally verifiable" SNARK
   * replace hash-functin with snark-friendly VDF
   
-Settling Payments Fast and Private: Efficient Decentralized Routing for Path-based transactions
+Talk 8: Settling Payments Fast and Private: Efficient Decentralized Routing for Path-based transactions {#talk8}
 ----------
 By Stefanie Roos
 
@@ -615,7 +637,7 @@ security:
   * if payment is received at receiver, it checks it and aborts 
 * availability: this is the big problem. Someone can cause receiver to abort tx, which can eventually stop these txs.
 
-Network and Revive: secure payment hubs supporting Off-Blockchain Rebalancing
+Talk 9: Network and Revive: secure payment hubs supporting Off-Blockchain Rebalancing {#talk9}
 ----------
 By Rami Khalil, Arthur Gervais
 
