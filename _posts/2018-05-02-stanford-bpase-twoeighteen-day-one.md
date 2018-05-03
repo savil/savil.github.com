@@ -705,7 +705,7 @@ a. grace-period should contain enough blocks (k should be sufficiently large). b
 
 Talk 7: smart signatures, experiments in authorization {#talk7}
 ------
-By [Christopher Allen](https://twitter.com/ChristopherA), formerly blockstream
+By [Christopher Allen](https://twitter.com/ChristopherA), formerly blockstream. [slides](https://t.co/PojNRmTDD3). [video](https://youtu.be/E9sbWKbfyJU).
 
 * signatures: demonstrate validity of a message 
   * examples = using RSA,  X.501 (Standard)
