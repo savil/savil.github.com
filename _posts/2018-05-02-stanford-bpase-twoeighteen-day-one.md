@@ -853,11 +853,12 @@ Talk 8: Hardening Lightning {#talk8}
 ---------------------------------
 [Olaoluwa Osuntokun](https://twitter.com/roasbeef), Lightning Labs. [video](https://www.youtube.com/watch?v=V3f4yYVCxpk&feature=youtu.be). If you are like me, then you'll watch this video at 0.75x speed.
 
-To see the mechanism behind the Lightning Network, see this excellent [Bitcoin Magazine article](https://bitcoinmagazine.com/articles/understanding-the-lightning-network-part-building-a-bidirectional-payment-channel-1464710791/). TLDR; payment channels, connect them, route transactions across them.
+To see the mechanism behind the Lightning Network, see this excellent [Bitcoin Magazine article](https://bitcoinmagazine.com/articles/understanding-the-lightning-network-part-building-a-bidirectional-payment-channel-1464710791/). TLDR; payment channels, connect them, route transactions across them. 
+
+This [article](https://bitcoinmagazine.com/articles/future-bitcoin-what-lightning-could-look/) gives an overview of many other LN sub-topics.
 
 This talk is the only one dealing with a production system, and goes into many improvements that could be done to many aspects of the LN. Its dense: each improvement has an underlying concept and current implementation that one needs to understand first.
 
-Also, see a more recent proposal similar to this called [Eltoo](https://blockstream.com/2018/04/30/eltoo-next-lightning.html)
 
 Talk Outline:
 1. Overview of Lightning's Security Model
