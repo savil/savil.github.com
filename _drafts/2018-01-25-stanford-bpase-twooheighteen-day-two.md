@@ -125,7 +125,7 @@ q. lot of parameters may change from empirical analysis. Is there a criteria for
 
 Talk 2: Simplicity: new language for blockchains {#talk2}
 ---------
-By Russell O'Connor, Blockstream
+By Russell O'Connor, Blockstream. very readable [Paper](https://blockstream.com/simplicity.pdf). Philip Wadler [is a fan](http://homepages.inf.ed.ac.uk/wadler/simplicity-and-michelson.html), with some valuable feedback. Last, you can also find an awesome implementation of Simplicity in haskell [here](https://medium.com/@danrobinson/understanding-simplicity-implementing-a-smart-contract-language-in-30-lines-of-haskell-827521bfeb4d).
 
 A language for the consensus layer.
 
@@ -186,12 +186,14 @@ based on Sequent-Calculus and not Lambda-Calculus
 Simplicity in a Blockchain:
 * recursively hash the DAG of the program, and compute a merkle root that commits to the program.
   * i.e. when receive coins, can just check the hash
-  * when redeeming the coins do you need to shwo the actual program 
+  * when redeeming the coins do you need to show the actual program 
+  * this is basically how PushToScriptHash works in bitcoin
 
-* has a "witness" combinator that direclt produces inputs to digital signatures
+* has a builtin "witness" combinator that directly produces inputs like digital signatures
+
 * during redemption, provide full Simplicity DAG including witness values
-  * system checks the merkle root matches the committment
-  * then evalutes the Simplicity program until it succeeds
+  * system checks the merkle root matches the commitment
+  * then evaluates the Simplicity program until it succeeds
 
 * other features in roadmap:
   * signature aggregation
@@ -199,9 +201,13 @@ Simplicity in a Blockchain:
   * delegation
     * in principle, this would enable a Solidity program that produces a trace of output and can use Simplicity to verify it
 
+* denotational semantics are great for reasoning about programs but cannot tell us about the operational costs. This is important to protect against DOS attacks.
+
 * operational semantics:
+
   * to model it, use an abstract machine called a Bit Machine
-    * has two stacks: read frame stack and write frame stack
+    * has two stacks: read frame stack and write frame stacka
+
   * cost is determined by: size of the program's DAG, number of steps the BitMachine takes, amount of memory needed by the BitMachine
     * this cost can be bound by static analysis
   * Jets: optimization that recognizes common subexpressions and run the corresponding C code
@@ -223,40 +229,75 @@ Talk 3: Schnorr signatures for bitcoin: challenges and opportunities {#talk3}
 ------
 By Pieter Wuille et al, Blockstream
 
+some reading for [context on Schnorr Signatures in Bitcoin](https://bitcoinmagazine.com/articles/the-power-of-schnorr-the-signature-algorithm-to-increase-bitcoin-s-scale-and-privacy-1460642496/).
+
 * smaller onchain size
 * faster validation 
 * better privacy
 
 threshold signatures require multiple sigs
-k-of-n threshold: publish n keys and k sigs
+k-of-n threshold: publish n keys and require k sigs for a valid sig
 
 * the main advantage of schnorrs is that one can have native multi-sigs 
-  * without requiring all keys taht need to be stored as part of the transaction
+  * without requiring all keys that need to be stored as part of the transaction
 * batch validation
-* non malleable
+* non malleable: third-party cannot manipulate signature without invalidating it
 
-bitcoin currently uses ECDSA scheme. Seems like one could add new opcodes to bitcoin that accept schnorr instead of ECDSA
+bitcoin currently uses ECDSA scheme. Seems like one could add new opcodes to bitcoin that accept schnorr instead of ECDSA.
 
 other advantages:
-* taproot
-* scriptless scripts
-  * "cross chain atomic swaps": all coins get locked, when first party retriesves their coins this reveals a hash-preimage that enables the other party to retrieve their coins. Schnorr sigs make this more efficient.
+* **taproot**: proposal that realizes that all transactions with multi-parties can be classified as: either everyone-agrees or some more complicated state. Taproot encodes a public-key and the hash-of-a-script that goes on to the blockchain, both inside another public-key that goes on the blockchain. Looking at this latter key, one cannot tell if it is a simple public-key or also encodes a script in it.
+* **scriptless scripts**
+  * see [talk at Real World Crypto by Poelstra](https://www.youtube.com/watch?v=ovCBT1gyk9c)
+  * "cross chain atomic swaps": all coins get locked, when first party retrieves their coins, this reveals a hash-preimage that enables the other party to retrieve their coins. Schnorr sigs make this more efficient.
 
 cross-input aggregation:
 * why stop at 1 signature per input?
 ..... bunch of explanation about some attacks and schemes to overcome them
 
-summary:
-* btc tx inputs are independent:
- * evry output acts as a prediate 
- * tx is valid if all inputs are correct
+* Rogue Key Attack:
+  * let Alice have key A, Bob have key B.
+  * Bob claims he has key B' = B - A
+    * Observe: a naive multisig for (B', A) would use sum of keys: is now just B!
+  
+  * this is usually prevented by having keys sign themselves.
+    * while claiming a public-key, one must prove they have its private-key.
+    * this works fine for the multi-sig within a single input approach, since the people who care about it are the participants themselves. They can internally prove to each other they can validly claim the public key. 
+    * BUT: for cross-input aggregation, the signer-set is controlled by the attacker -> keys cannot sign themselves
+    * need security in the plain public key model i.e. no key setup procedure beyond users claiming they own a pk. They can even lie about it!
 
+* Bellare-Naven in 2006 have solved the plain pk model!
+  * Schnorr multi sig uses: `s*G = R + H(X,R,m)*X, where X = X1 + X2 + ...
+  * Bellare-Naven "introduces a separate hash for every signer, and into the hash goes the set of all the signers"
+  * wide security proof!
 
+* MultiSignature versus Interactive Aggregate Signature:
+  * multisig: multiple signers, one message
+  * IAS: multiple signers, multiple messages
 
- 
+  * when spending multiple outputs, each input has their own message
+  * BN: has a solution i.e. m = m1 || m2 || ...
 
-Reading:
-https://medium.com/@SDWouters/why-schnorr-signatures-will-help-solve-2-of-bitcoins-biggest-problems-today-9b7718e7861c
+* Russell's attack
+  * Alice has two outputs (O1 and O2). Bob has O3.
+  * m1 is a message authorizing a spending of O1, m2 is ...
+  * Alice wants to spend O1 in a CoinJoin with Bob, but not O2.
+  * Bob can claim he has the same key as Alice (allowed!), and choose as message m2 (instead of m3)
+  * Bob can hence duplicate Alice's message, and steal O2.
+  * Solution: include the messages themselves in the hash-of-the-commitments-of-all-the-participants
+
+* concretely, on integrating
+  * benefits: can turn all keys in a particular input into one, using multisig and threshold sigs, and can reduce further by doing aggregation over multiple inputs, 
+  * for cross-input aggregation, we want one signature overall
+  * solution:
+    1. have CHECKSIG always succeed, but remember pubkey/msg
+    2. Transaction valid if all input predicates succeed
+       AND an overall Bellare-Neven IAS is valid for all delayed checks.
+
+* ongoing work:
+  1. BIP for Bellare-Naven based IAS
+  2. BIP for incorporating cross-input capable CHECKSIG
+  3. recommended approaches for doing various kinds of threshold signing
 
 Talk 4: Spectre, Phantom: BlockDAG Protocols {#talk4}
 -------
@@ -283,9 +324,9 @@ key observations:
 2. rarely more than k honest blocks created at approx same time (because use proof of work), where k is ... a parameter we can play with
 3. atttacker can create arbitrary structures, but < 50% of 
 
-if throughput is very low (like btc), then k = 0 and we have a chain
-if k = 2, we have a DAG with some width and any block can have k "sibling" blocks
-if k = 10, then every block is unaware of 10 other blocks
+* if throughput is very low (like btc), then k = 0 and we have a chain
+* if k = 2, we have a DAG with some width and any block can have k "sibling" blocks
+* if k = 10, then every block is unaware of 10 other blocks
 importantly, we can know k in advance, but having a bound on network propagation delay D and the block rate R. k <= 2.D.R
 
 BlockDAG is a paradigm not a solution, still need to resolve conflicts like double-spends
@@ -326,12 +367,12 @@ To get around NP-Hard issue:
   * count no orphans. why not just pick longest chain in DAG. Because attacker can make a slightly longer one (hmmmhow?)
   * why not count all orphans?
     * ethereum tried this with GHOST.
-    * but here the attacker could add references from its chain to orphan blocks, and can defaat this scheme as well
+    * but here the attacker could add references from its chain to orphan blocks, and can defeat this scheme as well
   * count "some" orphans: those that are "well connected" to the longest chain.
     * intuition is that orphans will not have incoming edges to the attacker's chain
     * definition: k-uncle of a chain is the number of blocks in the cluster that are not connected to the block.
       * Phantom greedy version, replace step 1 with:
-        "search for chain wtih largest number of uncles of degree <= k, the chain + uncles are hoenst"
+        "search for chain wtih largest number of uncles of degree <= k, the chain + uncles are honest"
 
 * security guarantee:
   1. (almost) all honest block are uncles of degree <= k of heaviest chain
@@ -339,14 +380,17 @@ To get around NP-Hard issue:
   3. any topological order over honest blocks will converge
 
 Phantom:
-* pro: throughput not limited by protocol. Adjust k accordingly.
-* pro: easy to implement efficiently
-* cons: poor waiting times when conflicts are visible. If it takes time for largest k-cluster to finalize, then need to wait.  * in payments, double-spenders make conflcits => attackers
-  * but in smart contracts, anyone can embed conflciting txs, so will likely have to wait
+* pros: 
+  * throughput not limited by protocol. Adjust k accordingly.
+  * easy to implement efficiently
+* cons: 
+  * poor waiting times when conflicts are visible. If it takes time for largest k-cluster to finalize, then need to wait.  
+  * in payments, double-spenders make conflicts => attackers
+    * but in smart contracts, anyone can embed conflicting txs, so will likely have to wait
 
 throughput: 
 
-protocol | throughput limited by | confirmation times w/o conflict | w/t conflict | ordering
+protocol | (throughput limited by) | (confirmation times w/o conflict) | (w/t conflict) | ordering
 BTC | latency | slow | slow | linear
 Spectre | capacity | very fast | not guaranteed| pairwise
 Phantom | capacity | slow | very slow | linear
@@ -377,28 +421,28 @@ background:
 
 similar goals to Simplicity. But approach it from a solution-oriented, empirical versus formal, math approach.
 
-Bitcoin: has declarative txs. where inputs and outputs are applied deterministically to the UTXO set. Localized effects. But scripts are limited in capability: cannot introspect or coordinate with other scripts
-Ethereum: txs and contracts are imperative, and resulting state is unknown until tx is pbulished and run. Great because very expressive but hard to reason about what state the contract will have when executing. Difficult to reason about effects and security.
+* Bitcoin: has declarative txs. where inputs and outputs are applied deterministically to the UTXO set. Localized effects. But scripts are limited in capability: cannot introspect or coordinate with other scripts
+* Ethereum: txs and contracts are imperative, and resulting state is unknown until tx is published and run. Great because very expressive but hard to reason about what state the contract will have when executing. Difficult to reason about effects and security.
 
 TxVM:
 * deterministic and isolated
 * expressive language
 * safe environment
 
-Tx is the program: executres contracts, controls v
+Tx is the program: 
+* executes contracts, controls v
 * produces deterministic tx log (inputs and outputs) that are applied to UTXO set.
 
-langauge:
+language:
 * first class values and contracts in type system
 * values
 * contracts is a program that can also hold things in storage including values
 
 two laws:
-1. constrained ops that preserve a "law of conservation" cannot create or destroy without satisfying some conditions
+1. constrained ops that preserve a "law of conservation" cannot create or destroy value without satisfying some conditions.
 2. must be cleared from vm at end of execution
 
-example:
-first-class values Example ride-sharing tx:
+example for first-class values: Example ride-sharing tx
 * $15 input from rider
 * split it into $10 for driver (contract) and $5 for company (another contract)
 * both laws satisfied
@@ -428,7 +472,7 @@ Internals:
   * no failures.
 * Blockchain updates
   * all effects in tx log
-  * remove inpots
+  * remove inputs
   * add outputs
 
 * walkthrough: see video.
@@ -453,17 +497,20 @@ Outline:
 * previous constructions
 * simple construction based on function inversion
 
-* prover
-* verifier has O(1) communications with prover, ideally, for challenge
+goal: prover must convince the verifier that it is using N space.
+* verifier has O(1) communications with prover, ideally, for challenge-response protocol
 * prover uses O(n) space and O(1) communication
-
-* attacker could use 
+* verifier then uses O(1) cpu to verify the proof.
+* attacker could use T time instead of S space.
+* security follows if:
+  * either, S = N space before exec
+  * or, T = N time in exec
 
 * known proofs of space:
   * graph pebelling. is asymptotically optimal
-     * is complicated, cannot be made non-interactive
+     * is complicated, cannot be made non-interactive when used in blockchains
  
-* inverting random functions
+* this work: inverting random functions
   * simple and practically efficient
   * proof holds unconditionally in the random oracle model
   * disadvantage: not asymptotically optimal
@@ -472,7 +519,7 @@ Outline:
   * verifier makes a random table, sends to prover. Then verifier sends an index into table, and prover responds with entry in table.
     * but: lots of communication complexity and space inefficient on verifier.
 
-  * simpler: verifier picks random function F, and sends to prover who makes table, and verifier picks index and prpover sends inverse.
+  * simpler: verifier picks random function F (like a secure hash function i.e. SHA-256), and sends to prover who makes table, and verifier picks index and prover sends inverse.
     * intuitive but Hellman found attack where prover can use sqrt(n) space and time.
        * prover saves sqrt(n) states and remembers the order. When index comes from verifier, prover finds the position in the list and walks it linearly.
 
@@ -482,33 +529,37 @@ Outline:
 
   * explanation of proof: ....omitted. 
 
+
 Talk 7: Verifiable Delay Functions: Applications and Candidate Constructions {#talk7}
 -------
-By Ben Fisch
+By Ben Fisch, Stanford University
 
-* F is a function that has a long walltime to compute. Not just in terms of runtime instructions.
-* it needs to let one quickly verify that y is the output of F(x)
+Related Work: see [Simple Proofs of Sequential Work](https://eprint.iacr.org/2018/183) by Bram Cohen. Best paper at EuroCrypt 2018.
 
-* slow to compute: sequential, non-parallelization
-* fast to verify
-  * short proof of correctness
-  * efficient, not simply fast due to parallelization
-* publicly verifiable
-* tunable
-  * works for good range of time-factors
+VDF Definition:
+  * F is a function that has a long walltime to compute. Not just in terms of runtime instructions.
+  * it needs to let one quickly verify that y is the output of F(x)
+  * slow to compute: sequential, non-parallelization
+  * fast to verify
+    * short proof of correctness
+    * efficient, not simply fast due to parallelization
+  * publicly verifiable
+  * tunable
+    * works for good range of time-factors
 
-* time-lock puzzles
+
+time-lock puzzles
   * private verifier prepares one-time-use puzzle
   * not publicly verifiable. Needs a trusted setup for this.
   * new setup for each puzzle
     * wall-clock timer starts once puzzle is released
 
-* proofs of sequential work
+proofs of sequential work
   * publicly verifiable
   * no trusted setup
   * not a function, output for a given challenge is not unique
 
-* Application 1: publicly veriable random beacon
+Application 1: publicly verifiable random beacon
   * e.g. if someone is running lottery, how do participants know that winner was truly randomly selected?
   * ideal service that regularly publishes random values which no party can predict or manipulate
   * approaches:
@@ -525,43 +576,87 @@ By Ben Fisch
           * miners may withhold unfavorable solutions
             * possible solution: add some delay to derivation of random beacon from block (i.e. wait for N blocks more to be confirmed)
  
-* Application 2: consensus from any Proof of Resource
+Application 2: consensus from any Proof of Resource
+  * combines proofs of space with VDF ---> see Bram Cohen's talk and paper.
   * PoR: proves miner owns X% of total resources
   * want property that: miner with X% of resource should in expectation mine X% of blocks in any chain window (referred to as "chain quality")
 
-  * break into X proofs of 1% of resources
-  * each proof gives one indepdendent random trial: R_i = Hash(Proof_i)
-  * miner finds R = min(proof_1, ...proof_n)
-  * <missed this>
-  * miner wins block if it samples the lowest delay param
+  * break into X proofs of 1% of resources: Proof_i for i in [1,X]
+  * each proof gives one independent random trial: R_i = Hash(Proof_i)
+  * miner finds R = min(R_1, R_2, ..., R_n)
+  * miner evaluates a VDF with a time-delay proportional to R, on an unpredictable challenge derived from Proof and previous block
+  * miner wins block if it samples the lowest delay parameter (i.e. R)
   * would expect: 
+    * miner who makes X% of all random samples, will get the minimum (delay parameter) of all random samples X% of the time.
+
+VDF Formalism:
+* setup(lambda, t) -> pp
+  * outputs public params (pp) including challenge space C and solution space S
+  * variants: trusted versus transparent setup
+
+* Eval(pp, c) -> s, proof
+  * takes challenge c and public params pp, and outputs solution s and proof
+  * runs in time t, even if run in parallel processors each takes time t
+
+* Verify(pp, c, s, proof) -> {Accept, Reject}
+  * runs in complexity poly(log(t), lambda). So, there is an exponential gap between
+
+* uniqueness: Eval defines a function on C to S
+* sigma-sequentiality: no adversary with poly(t, lambda) processors is able to compute output on Eval on random challenge in less than (t - sigma(t)) steps. Why?
 
 Construction steps:
  
 * HashChain: c -> H(c) -> H(H(c)) -> ... = s
-  * not efficiently verifiable
-* hashChain with snark:
+  * not efficiently verifiable => verification takes as long as evaluation => not a VDF!
+* hashChain with snark: 
+  * i.e. a succint proof that hash-chain computed correctly on c to derive s
   * fast to verify
-  * but proof computation takes a long time
-  * computation of snark is very parallelizable
+  * but proof-computation takes a long time AND is very parallelizable
+  * this fails sigma-sequentiality: non-optimized Eval takes > 2t steps, and highly parallel Eval takes t steps.
 * HashChain with "incrementally verifiable" SNARK
   * theoretical VDF
+  * basic idea: proof validates that the i'th block of steps is computed correctly
   * trusted setup relied on for verifier-efficiency, but not security
     * anyone can redo evaluator's computation to detect faulty proofs
 
-In this work, we will be practical!
-* square roots modulo a prime
-  * specify some prime number
-  * evaluation on a given challenge (if is quadratic residue), compute `sqrt(c mod p)`
-  * ...
-  * can get to same complexity of evaluator and verifier
+In this work, we will be practical! square roots modulo a prime: 
+  * has a gap between evaluation and verification
+  * Challenge c is in Z_p
+    * public parameters specify prime modulus p = 3 mod 4
+  * Eval(p, c):
+    * find x:
+      * if c is a quadratic residue (i.e. is a square-root in some Z_p), then solve x^2 = c mod p
+      * else, solve x^2 = -c mod p (which we somehow know to exist)
+    * x = c^((p + 1)/4) mod p 
+      * canonical way of choosing solution s = +/- x
+      * needs log(p) sequential operations
+  * Verify(c, s):
+    * Check s^2 = c mod p
+    * requires 1 squaring operation
+
+  * Two ways to increase Eval time
+    1. increase p 
+      * increases log(p) sequential squarings for Eval 
+      * caveats:
+        * introduces parallelism for log(p) bit multiplication
+        * VDF solution size is log(p) bits
+    2. chain square-root computations
+      * c_i = sigma(sqrt(c_(i-1) mod p)): where sigma is a simple permutation
+      * scales verification and evaluation time equally
+
+    * BUT: optimized Eval and Verify both take O(log^2(p)) steps
 
 * Generalize polynomial inversion
   * f(x) = x^2
   * finding root of x^2-c is slow, but verifying is fast
+  * ... see talk for better explanation
+  * but this gives us the exponential-gap we seek: Eval is O(d) and Verify is O(log(d))
+
+* Candidate family: <insert specific BIG polynomial here>
+  * but this is not a well-studied problem in crypto, so be cautious 
 
 * HashChain with "incrementally verifiable" SNARK
-  * replace hash-functin with snark-friendly VDF
+  * replace hash-function with snark-friendly VDF
   
 Talk 8: Settling Payments Fast and Private: Efficient Decentralized Routing for Path-based transactions {#talk8}
 ----------
@@ -592,25 +687,27 @@ By Stefanie Roos
        a. must ensure two nodes are in agreement about what the balances are for them in their channels
 
      focus on the routing algorithm, since the others are more "solved" problems in this space
+
      goals:
        * privacy
          * value privacy: guessing how much money was sent.
          * sender/receiver privacya
       * scalability
-        * effectiveness  => high probabilit of having a successful payment by finding these paths
+        * effectiveness  => high probability of having a successful payment by finding these paths
         * efficiency => avoid delay, and ensure not very costly (e.g. don't involve every node in the network to find a path)
       
      * related work
         * Canal/PrivPay: central server (not desirable)
         * Max-Flow algorithms: inefficient for large-scale distributed system that is changing a lot. hard to keep op top of all changes
-        * flare: keept rack of all links, and keep track of path to. Hard to keep up to date with network dynamics (links changing etc.)
+        * flare: keep track of all links, and keep track of path to. Hard to keep up to date with network dynamics (links changing etc.)
         * SilentWhispers (closest related work):
-          * main idea is to use Landmark Based Routing. A landmark is a dedicated node in network *usually has high bandwidth
+          * main idea is to use Landmark Based Routing. A landmark is a dedicated node in network 
+            * usually has high bandwidth
  
           * might choose two landmarks and for each you build a spanning tree. Still need to keep on top of network dynamics.
              * periodically rebuild them
           * so, how do we route to these networks?
-             * look at each landmark, get path from sender to landmark, and then landmark to receiver. number of paths = O(nuber of landmarks).
+             * look at each landmark, get path from sender to landmark, and then landmark to receiver. number of paths = O(number of landmarks).
           * how much to transfer on each path?
             * get minimum funds on channel in each path = this is the maximum that can be sent on that path
           * scales linearly to depth of spanning tree, which is logarithmic
@@ -621,9 +718,9 @@ By Stefanie Roos
                    * for each node, add (parent number, self number), where number = number in all nodes on same level in tree 
 		     * have dynamic and local reconstruction on leave/join
 		     * lets one calculate distance between nodes (TODO savil. is this true?)
-		   * how:
-  			* 1: divide funds randomly before finding paths
-			* 2: select neighbour such that (a) neighbor is closer to receiver (b) link has atleast c_i funds
+        * how:
+  		    1. divide funds randomly before finding paths
+          2. select neighbour such that (a) neighbor is closer to receiver (b) link has atleast c_i funds
              * for value privacy:
                * value c is hidden from nodes not on path
                * or if there is an adversary on one of the paths. Then if A sees value=5, and knows there are two landmarks, can estimate that Expected[value] = value*num_landmarks = 5*2 = 10
@@ -646,15 +743,15 @@ with:
 1 minute block interval and 1 Mb blocksize => 
 
 options for scaling:
-* consensus algorithm
-* sharding
-* offchain (this talk)
+* consensus algorithm: alternatives to proof of work like proof-of-stake, or proof-of-space
+* sharding: partitioning
+* offchain (this talk): delayed onchain settlement
   * 2 party channels
     * unidirectional
      * bidirectional 
      * linked payments
      * secure payment hubs
-   * N party channels
+   * N party channels: will cover later as well
 
  off-chain payment lifecycle:
   * establish channel
@@ -666,56 +763,61 @@ options for scaling:
 * bidirectional 
   * both parties deposit collateral
   * important that previous offchain txs are invalidated.
-* linked payments
+* linked payment channels
   * if peers are not directly connected (see previous talk)
   * considerations:
     *  needs to find path, 
-    * and maintain the channel (as the deposits of the channels are consumed or replenished), 
-    * and tx secuirty
-    * offchain congestion. If only have limited amount of time to claim that an old tx is invalid. if congested, then cannot refute old claim (this is dangerous and adds a loophole).
+    * and maintain the channel (as the deposits of the channels are consumed or replenished). Doing this topup onchain can be expensive.
+    * and tx security
+    * offchain congestion. If only have limited amount of time to claim that an old tx is invalid. if congested, then cannot refute old claim (this is dangerous and adds a loophole). This is for "timeout based" payment channels.
 
-* skewed channel balances
+* skewed channel balances: topic of this talk.
+  * i.e. channel maintenance
   * may find a longer route: time to find route, higher fees, and need to do more onchain topup.
 
 * REVIVE: protocol to make payment channels more scalable.
   * works on two-party payment channels
   * enables rebalancing collaterals off-chain, by finding routes with sufficient channel funds and moves them to the shorter path's funds.
 
-* how:
-input: channel balances, user preferences (like ?)
-output: payments to be executed
-protocol for atomic enforcement of this tx set
-
-PoC on ethereum using Sprites channels. Is on github.
+how:
+* rebalancing the tx set generation algorithm:
+  * input: channel balances, user preferences (like ?)
+  * output: payments to be executed
+* protocol for atomic enforcement of this tx set:
+  * input: payments to be executed
+  * output: execution or failure of all payments
+* PoC on ethereum using Sprites channels, [is on github](https://github.com/liquidity-network/revive)
 
 Transaction Set Generation Algorithm:
   * linear program (allows us to model an amount from U to V as Delta_U_V)
-  * constraints that sum of all deltas is zero
-   * must satisfy user preferences
-  * cannot exceed channel balances
-  * optimization objective: maximize the total amount of funds rebalanced (Sum of Delta_U_V)
+  * constraints: 
+    * sum of all deltas is zero
+    * must satisfy user preferences
+    * cannot exceed channel balances
+  * optimization objective: 
+    * maximize the total amount of funds rebalanced (Sum of Delta_U_V)
   * problems:
 	  * problem with linear programs is that there may be minuscule losses due to numerical precision from rounding.
-	  * running time of linear programs is hard to calculate.
+	  * running time of linear programs is hard to calculate. But in practice seems okay.
 
 Setup:
-* round-robin leader election: leader notifies rebalance-init 
-* freeze and genreate: leader receives channel aalances and participatnts freeze channels and leader computes tx set
-* signature aggregatino: participatns review tx set, approve and leader collects sigs and leader distributes full sig set
-* dispaute: revalance is channelged on chain.
+* round-robin leader election: leader notifies rebalance-init, with a particular strategy respecting user preferences.
+* freeze and generate: leader receives channel balances and participants freeze channels and leader computes tx set
+* signature aggregation: participants review tx set, approve and leader collects sigs and leader distributes full sig set
+* dispute: rebalance is challenged on chain. Needs full signature set to be broadcast.
 
 guarantees for honest parties: 
   * balance is conserved
   * rebalance objectives are fairly satisfied
-not guarantees about privacy, because leader is collecting all balances of participants and so knows it all
+  * no guarantees about privacy, because leader is collecting all balances of participants and so knows it all. Future work.
 
 usability-adoption consideration:
-reputation and relationship: probably want to do rebalancing with peers you trust
-number of aptticipants doesn't scale, because disputes can slow it down
-parallel channel s*todo savil
-feasbible optimization objectives (because linear program, andn ot somehting more complex)
+* reputation and relationship: probably want to do rebalancing with peers you trust
+* number of participants doesn't scale, because disputes can slow it down. More participants mean that more expensive the disputes get.
+* parallel channels: having multiple channels of one's own, makes it more efficient for oneself. Could be some optimizations here.
+* feasible optimization objectives (because linear program, and not somehting more complex)
 
-must need a cycle in topology to rebalance. a tree will not do
+must need a cycle in topology to rebalance. a tree will not do.
 
 2-party payment channel hubs:
 * need to maintain channels
@@ -726,7 +828,7 @@ to make this efficient, proposing a liquidity network. efficient offchain paymen
 n-party payment hubs
 
 main architecture:
-* blockchain + (LiqudityNetwork smart contract + liqueudityNetwork server)
+* blockchain + (LiquidityNetwork smart contract + LiquidityNetwork server)
    * is centralized? open and anyone can join the network. funds are owned by users via private key. server can never access the funds.
 
    * can manage collaterals better
@@ -737,12 +839,12 @@ main architecture:
 https://liquidity.network
 Development now
 Eth testnet in march 2018
+[Paper published](https://eprint.iacr.org/2017/823.pdf).
 
 q. what is the trust model for n-party payment model?
 - payment hub is not trusted
 
 q. would have expected revive to be a series of rebalances, rather than offchain resolution
 - could go from set-of-txs to set-of-paths to rebalance, but need an algorithm to do this mapping.
-
 
 * secure payment hubs
