@@ -3,6 +3,8 @@ title: Stanford BPASE 2018 Day Two
 layout: post
 ---
 
+You can find day-one notes [here](/2018/05/02/stanford-bpase-twoeighteen-day-one.html).
+
 Table of Contents
 ----------------
 
