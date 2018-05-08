@@ -3,7 +3,7 @@ title: Stanford BPASE 2018 Day Two
 layout: post
 ---
 
-You can find day-one notes [here](/2018/05/02/stanford-bpase-twoeighteen-day-one.html).
+You can find the program for the conference and all slides and videos [here](https://cyber.stanford.edu/bpase18), and day-one notes [here](/2018/05/02/stanford-bpase-twoeighteen-day-one.html).
 
 Table of Contents
 ----------------
