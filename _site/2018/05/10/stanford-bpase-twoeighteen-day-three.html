@@ -1,0 +1,1262 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta charset="utf8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Stanford BPASE 2018 Day Three</title>
+
+    <link rel="stylesheet" href="/css/sitewide.css">
+    <link rel="stylesheet" href="/css/post.css">
+  </head>
+  <body>
+    <div class="post_container">
+      <div class="home_link_container">
+        <a href="/">homeward bound.</a>
+      </div>
+      <div class="post_title">
+        Stanford BPASE 2018 Day Three
+      </div>
+      <div class="post_date">
+        2018 . 05 . 10
+      </div>
+      ...
+      <p>You can find the program for the conference and all slides and videos <a href="https://cyber.stanford.edu/bpase18">here</a>. Notes for day-one are <a href="/2018/05/02/stanford-bpase-twoeighteen-day-one.html">here</a>, and day-two <a href="/2018/05/02/stanford-bpase-twoeighteen-day-two.html">here</a>.</p>
+
+<h2 id="table-of-contents">Table of Contents</h2>
+
+<ul>
+  <li><a href="#talk1">Talk 1: Bulletproofs</a></li>
+  <li><a href="#talk2">Talk 2: Chainweb: a Braided Parallel-Chain PoW architecture for massive throughput</a></li>
+  <li><a href="#talk3">Talk 3: Mobius: privacy layer for ethereum</a></li>
+  <li><a href="#talk4">Talk 4: Trustchain: micro economy for bandwidth tokens</a></li>
+  <li><a href="#talk5">Talk 5: Dfinity: Threshold Relay</a></li>
+  <li><a href="#talk6">Talk 6: Power Fault Tolerance: a new framing for consensus protocols</a></li>
+  <li><a href="#talk7">Talk 7: Proof of Replication using Depth Robust Graphs</a></li>
+  <li><a href="#talk8">Talk 8: TLS-N: Non-repudiation over TLS enabling Ubiquitous Content Signing</a></li>
+  <li><a href="#talk9">Talk 9: NuCypher KMS: Decentralized Key management system</a></li>
+</ul>
+
+<h2 id="talk1">Talk 1: Bulletproofs</h2>
+<p>Benedikt Buenz
+http://crypto.stanford.edu/bulletproofs</p>
+
+<p>initially designed to help with confidential txs, but can be applied to arbit computations</p>
+
+<p>validity of btc tx:</p>
+<ol>
+  <li>sig is correct</li>
+  <li>inputs are unspent</li>
+  <li>sum of inputs &gt; sum of outputs. Difference -&gt; miner fees.</li>
+</ol>
+
+<p>But is neither confidential (tx amounts not hidden) nor anonymous (can see addresses coming from and to).
+Confidentiality is important e.g. for businesses to not reveal suppliers and customers.</p>
+
+<p>Confidential Transactions idea:</p>
+<ul>
+  <li>instead of sending amounts, we send cryptographic-commitments (which hides the actual values)
+    <ul>
+      <li>e.g. Pedersen commitments: `Commit(x;r) = g^xh^r</li>
+      <li>but then to check that sum of inputs &gt;= sum of outputs, need to ensure that outputs are positive.</li>
+    </ul>
+  </li>
+</ul>
+
+<p>Confidential txs [Maxwell 2016]</p>
+<ul>
+  <li>CT txes are structured like btc txes</li>
+  <li>tx amounts are hidden</li>
+  <li>tx graph is still public</li>
+  <li>public verifiability of tx validity</li>
+</ul>
+
+<p>To verify tx validity:</p>
+<ul>
+  <li>use zero-knowledge proof-of-knowledge!</li>
+  <li>peggy to victor: (prover to verifier):</li>
+  <li>prover to verifier: <code class="highlighter-rouge">c = g^xh^r</code> is a commitment to a positive number x</li>
+  <li>verifier: prove it</li>
+  <li>verifier: here’s a challenge!</li>
+  <li>prover and verifier do an interactive challenge-response protocol</li>
+  <li>peggy: here’s a response to prove it is positive and that Peggy knows it, but doesn’t tell victor what x specifically is
+    <ul>
+      <li>uses Range Proof, x is in [0, 2^52]</li>
+    </ul>
+  </li>
+</ul>
+
+<p>NIZK: non-interactive zero-knowledge proof of knowledge</p>
+<ul>
+  <li>more applicable to blockchains. In this, peggy creates the proof on her own, and can send the proof to victor or any public verifier.</li>
+</ul>
+
+<p>Concrete range-proof using bit-commitments</p>
+<ul>
+  <li>idea: can represent the number in 52 bits</li>
+  <li>peggy commits to all bits of number…explanation of Linear Range proof.
+    <ul>
+      <li>for each bit of number, add a commitment</li>
+      <li>and also develop a proof that:
+        <ul>
+          <li>each commit-value is in [0,1] i.e. is a “bit”</li>
+          <li>and, these are “homomorphic commitments” i.e. satisfy the property that C(a) + C(b) = C(a+b), and so verifier that validate that their sum equals the commitment to the original value</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<p>Linear range proofs:</p>
+<ul>
+  <li>based on sigma-protocols with Fiat-Shamir heuristic. This is what CT was originally proposed with.</li>
+  <li>recent optimizations by Poelstra et al 2x improvement</li>
+  <li>4kb for 64-bit range proof  —&gt; way too large for a transaction</li>
+  <li>linear in bit-length of range (bad)</li>
+  <li>no trusted setup is needed (good)</li>
+</ul>
+
+<p>Preprocessing SNARKs with Trusted Setup (GGPR ‘13)</p>
+<ul>
+  <li>goal: reduce the size of the proof</li>
+  <li>they pre-compute “queries” for the prover, and pre-compute “answers” for the verifier.</li>
+  <li>prover computes short proof (always 188 bytes regardless of thing being proved), that is fast to verify.</li>
+  <li>problematic: need to do setup. If malicious person does setup, then can be used to make “cheating proofs”.
+    <ul>
+      <li>cannot prove that there was a malicious setup. Any bad behavior is undetectable at this point.</li>
+      <li>can be alleviated by having multiple parties create the setup together, which is what ZCash did. But still have downsides.
+        <ul>
+          <li>cannot disprove someone spreading FUD about a “bad setup”.</li>
+        </ul>
+      </li>
+      <li>low flexibility: any changes to the proof-system needs new setup.</li>
+    </ul>
+  </li>
+  <li>proof time is k (constant) and so is verification time.</li>
+</ul>
+
+<p>STARKS: CS Proofs (computationally sound) [Ben-Sasson ‘17]</p>
+<ul>
+  <li>Based on PCP theorem and Fiat-Shamir heuristic</li>
+  <li>no trusted-setup, but log-sized proofs and verifications</li>
+  <li>very elegant but not practical, because proof-size becomes really large: &gt; 200kb proof-size, and prover overhead is massive (needs lots of RAM for 16-bit circuit)</li>
+</ul>
+
+<p>Bootle et al ‘16: log-sized proofs for Arithmetic Circuits</p>
+<ul>
+  <li>verification time is linear but proof time is log-sized.</li>
+  <li>interactive, multi-round protocol</li>
+  <li>public-coin (verifier’s messages are random)</li>
+  <li>for arbitrary arithmetic circuits</li>
+  <li>assumption: discrete-log, only</li>
+  <li>proof size: O(log(n)) elements. This is pretty short. this is what we really care about in a replicated-network like a blockchain.</li>
+  <li>proving and verifying is linear in circuit</li>
+  <li>no proofs on committed values (important for range proofs)</li>
+</ul>
+
+<p>Bulletproofs (also applies to MimbleWimble):</p>
+<ul>
+  <li>improves on Bootle et al’s protocol</li>
+  <li>can do proofs on committed values</li>
+  <li>Fiat-Shamir heuristic to create a NIZK</li>
+  <li>has lots of good properties:
+    <ul>
+      <li>relies on discrete-log problem being hard (well tested)</li>
+      <li>and can be used in any elliptic-curve problem, unlike SNARKS which rely on other assumptions beyond discrete-log.</li>
+    </ul>
+  </li>
+  <li>proof-size:
+    <ul>
+      <li>O(log(n)) elements for the range-proof</li>
+      <li>to prove that multiple outputs are in the range, bulletproof’s size increases very marginally compared to a linear range-proof whose size will increase xN, for N outputs.</li>
+    </ul>
+  </li>
+</ul>
+
+<p>Multi-Party Protocol for Bulletproofs</p>
+<ul>
+  <li>its not common for multiple outputs in a transaction, so how can we incentivize this? CoinJoin!</li>
+  <li>want it such that:
+    <ul>
+      <li>can have multiple provers making a single proof without revealing their secrets to each other.</li>
+      <li>trivial solution: concatenate the proofs, but that is linear again so not great.</li>
+    </ul>
+  </li>
+  <li>designed a multi-party computation protocol for bullet proofs: which lets one combine the proofs into a single one.
+    <ul>
+      <li>works if circuits are disjoint i.e. n range proofs for n provers</li>
+      <li>simply aggregate proofs in each round, and compute Fiat-Shamir challege</li>
+      <li>either log(n) rounds and log(n) communication</li>
+      <li>or 3 rounds and O(n) communication</li>
+    </ul>
+  </li>
+  <li>This way CoinJoin helps with not just anonymity but also efficiency. There are economic incentives to adopt it!</li>
+</ul>
+
+<p>Bulletproofs for CT or MimbleWimble</p>
+<ul>
+  <li>reduces the UTXO set size by order of magnitude
+    <ul>
+      <li>4kb to 0.67kb per range-proof</li>
+      <li>UTXO set size or MimbleWimble size: 160 GB -&gt; 17 GB</li>
+    </ul>
+  </li>
+  <li>builtin CoinJoin protocol for combining confidential transactions</li>
+  <li>
+    <p>with quantum computers, anonymity could be broken, but soundness cannot. i.e. cannot create money out of thin air.</p>
+  </li>
+  <li>Why not use BP for ZCash? 
+problem: verification time for SNARK is constant, but for BP grows linearly.</li>
+</ul>
+
+<p>…insert image for comparing proof systems…</p>
+
+<p>Applications:</p>
+<ul>
+  <li>can use it for <a href="http://www.jbonneau.com/doc/DBBCB15-CCS-provisions.pdf">Solvency Proofs</a>
+    <ul>
+      <li>Mt Gox must prove they are solvent</li>
+      <li>can provide a zero-knowledge proof that they are solvent
+        <ul>
+          <li>doesn’t reveal what each customer has, or even what they have in total</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <p>with BP, proof-size goes down from 18GB -&gt; 60MB!</p>
+  </li>
+  <li>for smart contracts:</li>
+  <li>no trusted setup, for arbitrary computation</li>
+  <li>proofs are short so tx size is kept small</li>
+  <li>but verification time is linear, so may not be practical
+    <ul>
+      <li>workaround: refereed-delegation model (what TrueBit uses).
+        <ul>
+          <li>Protocol:
+            <ul>
+              <li>Prover claims Proof is correct i.e. V(proof) = 1</li>
+              <li>Lay out verification circuit, and name i’th gate V_i</li>
+              <li>Challenger claims proof is invalid</li>
+              <li>can do a binary search to find the divergence point in their claims</li>
+              <li>Smart Contract just needs to verify the final gate</li>
+            </ul>
+          </li>
+          <li>Cost:
+            <ul>
+              <li>O(log(n)) cpu to prepare proof</li>
+              <li>O(log(n)) communication</li>
+              <li>1 gate computation in the smart contract</li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>for verifiable shuffles:</li>
+  <li>
+    <p>set of senders (with emails, phones, btc addresses) -&gt; want to shuffle -&gt; and want to send to recipients</p>
+  </li>
+  <li>found improvements when implemented in btc-security-lib
+    <ul>
+      <li>constant time prover</li>
+      <li>fast verifier</li>
+    </ul>
+  </li>
+  <li>improving verification:
+    <ul>
+      <li>if one unrolls the interactive protocol, then turns out one can verify with one big “multiexponentiation”</li>
+      <li>well studied problem: it is sublinear N/log(N) i.e. gets better with bigger N</li>
+      <li>BP are faster to verify than a SNARK (for small ciruit times)</li>
+      <li>verifying takes 4ms. ECDSA sig verification is 5 times faster.</li>
+      <li>batch verification also reduces down to doing one bug multiexponentiation
+        <ul>
+          <li>4ms for each verification + 200mus for each additional proof</li>
+        </ul>
+      </li>
+      <li>implies is practical for btc in terms of verification time. So, no real barrier to add this to btc.</li>
+      <li>other problems: quantum unsoundness, and some more.</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="talk2">Talk 2: Chainweb: a Braided Parallel-Chain PoW architecture for massive throughput</h2>
+<p>Will Martino, Stuart Popejoy: Kadena</p>
+
+<p>ChainWeb:</p>
+<ul>
+  <li>same energy, higher throughput, lower latency</li>
+</ul>
+
+<p>Key Features:</p>
+<ol>
+  <li>peer chains cross reference each other’s previous merkle roots</li>
+  <li>trustless, destructive cross-chain coin transfers through SPV at the smart-contract level</li>
+</ol>
+
+<p>Prior Art:</p>
+<ul>
+  <li>blockrope/betacoin
+    <ul>
+      <li>cross-referencing chains twisted together</li>
+    </ul>
+  </li>
+  <li>GHOST/Decor+
+    <ul>
+      <li>include orphaned header’s input for security</li>
+    </ul>
+  </li>
+</ul>
+
+<p>two-step trustless cross-chain destructive coin transfers:</p>
+<ol>
+  <li>delete coins on chain A. Specify:
+    <ul>
+      <li>delete account on chain 1 and amount</li>
+      <li>create chain and create acct</li>
+    </ul>
+  </li>
+  <li>“Create” requires a merkle proof of deletion
+    <ul>
+      <li>smart contract runs spv, gets amount and acct from proof</li>
+      <li>consume delete’s tx id</li>
+    </ul>
+  </li>
+</ol>
+
+<ul>
+  <li>use the concept of a “base graph” to estimate the size of graph made from N chains.
+    <ul>
+      <li>“diameter”: distance between any two nodes.</li>
+    </ul>
+  </li>
+  <li>“merkle cones”: pretty neat idea that any nodes in the graph in the history or future cone can be checked with an efficient spv.
+    <ul>
+      <li>security hypothesis:
+        <ul>
+          <li>once a block’s future merkle-cone is formed, then a transaction is “confirmed”.</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>considerations:
+    <ul>
+      <li>configurable confirmation latency
+        <ul>
+          <li>block time * base-graph-diameter</li>
+        </ul>
+      </li>
+      <li>bandwidth:
+        <ul>
+          <li>heavy: whole chainweb block stream</li>
+          <li>light: single chain</li>
+          <li>light: only send headers for larger number of chains</li>
+          <li>(headers carry the assurance)</li>
+        </ul>
+      </li>
+      <li>subset replication and mining:
+        <ul>
+          <li>possible to mine subset of network</li>
+        </ul>
+      </li>
+      <li>role of large mining pools</li>
+      <li>hashrate load balancers</li>
+      <li>header stream network providers: hard for attacker. By withholding a block, prevents further mining since other previous headers in history-cone are required.</li>
+      <li>layer consensus providers: incentivized to have everyone see network as they see it to avoid misallocating their mining resources</li>
+      <li>cross-chain account transfers
+        <ul>
+          <li>take the same amount of time (diameter) as a same-chain transfer</li>
+          <li>well formed Delete is enough for Bob to confirm the tx will occur, Create at Bob’s leisure (he knows its well formed and can do it whenever)</li>
+        </ul>
+      </li>
+      <li>Load balancing smart contracts
+        <ul>
+          <li>cross-chain transfer tools work for contract assets as well</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>also see: Pact, smart contract language. non-turing complete (no recursion, etc.) and designed for non-programmers to write contracts (like people write excel formulas).</li>
+</ul>
+
+<h2 id="talk3">Talk 3: Mobius: privacy layer for ethereum</h2>
+<p>Rebekah Mercer</p>
+
+<p>unlinkability: have many inputs which can give plausible deniability into who the sender was</p>
+
+<p>approach 1: new currency
+ZCash: 
+Dash: litecoin uses master node to do mixing in some way
+monero: ring confidential txs</p>
+
+<p>approach 2:
+privacy overlay for an existing currency</p>
+<ul>
+  <li>centralized
+    <ul>
+      <li>naive solution: run a “bitcoin bath” in between senders and receivers. the “bath”
+        <ul>
+          <li>but btc-bath knows who the (sender, receiver) pair is!</li>
+          <li>also, sender knows receiver’s address</li>
+          <li>bad for: availability and theft. the btc-bath can run away with the money!</li>
+        </ul>
+      </li>
+      <li>TumbleBit:
+        <ul>
+          <li>creates two escrows (Alice to Tumbler, Tumbler to Bob)</li>
+          <li>Tumbler doesn’t learn (Alice, Bob) pairing for the tx, only knows it talks to Alice and some other point to Bob.</li>
+          <li>availability problem: if Tumbler goes down, money is not stolen but could be in limbo.</li>
+          <li>lots of exchanges (txs cost $$$)</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>decentralized
+    <ul>
+      <li>Mixcoin, BlindCoin etc.</li>
+      <li>CoinJoin:
+        <ul>
+          <li>btc’s fav one.</li>
+          <li>offchain: find other senders, and then share addresses to want to send to</li>
+          <li>anonymity: senders learn who the receivers are. but receivers don’t know who the senders are.</li>
+          <li>availability: if a large group of senders, then one sender could DoS this by claiming to intend to participate and at the last stage they could disappear.</li>
+        </ul>
+      </li>
+      <li>Xim:
+        <ul>
+          <li>aim to reduce offchain communication, do onchain</li>
+          <li>need to do 7 or so onchain txs</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>mobius:
+    <ul>
+      <li>main problem: entities participating need to do much coordination</li>
+      <li>availability problem: built on ethereum so sidestep this problem by …</li>
+      <li>anonymity: recipients can learn sender, but sender doesn’t know
+        <ul>
+          <li>use-case: employer could pay wages but don’t know the employee’s addresses and so cannot monitor your use of money</li>
+          <li>use-case: onboarding blockchain (passport etc). Exchange can link onchain address to offchain identity.</li>
+        </ul>
+      </li>
+      <li>only two messages to be exchanged ever (offchain) but online (need two messages per tx)</li>
+      <li>ethereum
+        <ul>
+          <li>normally, no privacy</li>
+          <li>no local storage</li>
+          <li>no non-deterministic execution</li>
+          <li>no external lookup of data</li>
+          <li>everything is expensive</li>
+          <li>security is extremely important</li>
+        </ul>
+      </li>
+      <li>method
+        <ul>
+          <li>smart-contract: senders deposit tx, and receivers withdraw tx</li>
+          <li>sender tx: cannot specify recipient</li>
+          <li>challenge 1: hide link between sender and receiver
+            <ul>
+              <li>derive key:
+                <ul>
+                  <li>publish long-term master (public) key, instead of publishing address (hash of public key). The hash loses the nice algebraic structure that is exploited.</li>
+                  <li>others can derive child public keys for you</li>
+                  <li>only you can derive private key</li>
+                  <li>only one communication is needed per pair (ever).</li>
+                  <li>use Diffie-Hellman key exchange:
+                    <ol>
+                      <li>sender generates a fresh random key-pair: R = g^r</li>
+                      <li>recipient derives a long-term key pair: A = g^a</li>
+                      <li>the derived public-key = A.g^(H(A^r)), where H is a hash function
+                        <ul>
+                          <li>note: the Hash could be a PRG which can derive more public-keys</li>
+                        </ul>
+                      </li>
+                      <li>the derived private-key = a + H(R^a)</li>
+                    </ol>
+                  </li>
+                </ul>
+              </li>
+              <li>can have a public-key registry to avoid communication between alice-and-bob</li>
+              <li>senders use derived keys to deposit</li>
+            </ul>
+          </li>
+          <li>challenge 2:  withdrawal must hide which receiver it is
+            <ul>
+              <li>ring signature: three algos for setup, sign and verify</li>
+              <li>receiver: need to prove that i deserve money
+                <ul>
+                  <li>zcash uses the blockchain via zk-snarks to prove this</li>
+                  <li>in this limited setting, look at public keys that have money on them, receiver controls private key for one of them</li>
+                  <li>but ring sigs cannot be used to authorize money transfers, because sign step has private randomness which can make double-spending easy</li>
+                  <li>can use a “linkable ring signature”</li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+          <li>good summary slide at the end</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="talk4">Talk 4: Trustchain: micro economy for bandwidth tokens</h2>
+<p>John Pouwelse, Quintin Stokkink: Ledger Scientist</p>
+
+<p>“TRIBLER: a social based peer to peer system”</p>
+
+<p>Outline:</p>
+<ul>
+  <li>science: produce trust with software</li>
+  <li>overlay for torrent-search and sharing</li>
+  <li>distributed accounting system 2007-today
+    <ul>
+      <li>trustchain 10k tps</li>
+      <li>microeconomy for bandwith tokens</li>
+    </ul>
+  </li>
+  <li>internet of trust for the real economy</li>
+</ul>
+
+<p>currently trust is locked-in, where there is a reputation system owned by airbnb or uber
+in the future, we’ll have a generic trust system</p>
+
+<ul>
+  <li>“trustchain ietf” draft proposal for standardization (19 pages)
+    <ul>
+      <li>scales horizontally, each person tracks just their transactions</li>
+      <li>they don’t solve the double-spend problem</li>
+    </ul>
+  </li>
+  <li>end up building a network phone-to-phone that lets one run a reputation system ala uber or airbnb without having any central server</li>
+</ul>
+
+<h2 id="talk5">Talk 5: Dfinity: Threshold Relay</h2>
+<p>Timo Hanke, Dfinity
+<a href="https://dfinity.org/pdf-viewer/library/dfinity-consensus.pdf">Whitepaper for consensus</a></p>
+
+<p>goal for PoStake:</p>
+<ul>
+  <li>fast consensus (5s): short block time, instant finality</li>
+  <li>scalability (1m people)</li>
+  <li>randomness:
+    <ul>
+      <li>for scalability in terms of sharding.</li>
+      <li>Also, expose randomness from consensus algo into app layer via an op-code.</li>
+      <li>need it in consensus for leader-election</li>
+      <li>should be unpredictable, unmanipulatable.</li>
+    </ul>
+  </li>
+  <li>security (provable)
+    <ul>
+      <li>no selfish-mining, nothing-at-stake problems</li>
+    </ul>
+  </li>
+</ul>
+
+<p>Challenge 1: consensus and scalability</p>
+<ul>
+  <li>tradeoff between finality and scalability
+    <ul>
+      <li>e.g. PBFT chain: has finality after one block, but scales to only a few nodes</li>
+      <li>pow chain: probabilistic finality over time, arbitrary many nodes</li>
+    </ul>
+  </li>
+</ul>
+
+<p>Challenge: randomness
+  1.derive randomness from chain?
+    * chain is manipulatable
+    * assumes everyone agrees on chain (but forkable!)
+    * hence:
+      * must not depend on chain, since it is “grindable”
+      * must not fork</p>
+
+<ol>
+  <li>“last actor” bias:
+    * last actor has info advantage, can see randomness that may be output and could abort. e.g. one actor, and she needs to roll dice in cup, but could peek under it and see 6 and reject it.
+    <ul>
+      <li>any fallback mechanism (after abort) introduces bias
+        <ul>
+          <li>e.g.: miner discards block, commit-reveal schemes (moved problem to when reveal happens that actor could be bad)</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ol>
+
+<p>Challenge: Security - PoS attacks:</p>
+<ul>
+  <li>causes of selfish mining and nothing at stake: sig are timeless and cheap.
+    <ul>
+      <li>timeline -&gt; blocks can be withheld</li>
+      <li>cheap -&gt; equivocate</li>
+    </ul>
+  </li>
+</ul>
+
+<p>Fundamental Observations:</p>
+<ul>
+  <li>Obs 1: “threshold groups” have no last actor. a k-of-n threshold group have k actors who are necessary and sufficient.</li>
+  <li>Obs 2: “consensus without consensus”:
+    <ul>
+      <li>BLS threshold sigs
+        <ul>
+          <li>private keys are split with groups. To combine, they make sig-shares which then combine (handwave) without revealing full key</li>
+          <li>BLS has all the following properties:
+            <ul>
+              <li>distributed key generation: no trusted dealer required.
+                <ul>
+                  <li>not easy to do. Possible for discrete-log systems, not easy for RSA or factoring-based systems b/c not easy to create a modulus that is product of two primes such that no individual member knows the two primes. In discrete-log systems, the secret is a scalar element of Z mod p, which is easy to share with Shamir-secret sharing.</li>
+                </ul>
+              </li>
+              <li>unique: for every message only one signature verifies. Note: this doesn’t imply deterministic. True for RSA, but not true for most discrete-log systems like ECDSA or Schnorr because they are randomized. When the system is initialized, one needs to pick some random k value, and so there are infinitely many signatures for each message.
+                <ul>
+                  <li>not deterministic: you could say in ECDSA one derives the k-value from the message and the secret-key, but for the verifier it won’t work. Because to reveal this k-value to the verifier would mean revealing the secret key.</li>
+                </ul>
+              </li>
+              <li>non-interactive: signature shares are created independently. Schnorr doesn;t satisfy this, but BLS does</li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+      <li>why “consensus without consensus”? the key generation process means all parties agree on something, and because it is unique it means they always agree on this message. Now, if the signature is the source-of-randomness, then we’ve agreed on the random number.</li>
+    </ul>
+  </li>
+  <li>Obs3: Randomly sampled committees. Committee-size has ramifications, number of bad actors in the universe should be &lt; 50%.</li>
+  <li>Obs4: enforced publication
+    <ul>
+      <li>notarization: majority signature done by a committee</li>
+      <li>if a committee is a random sample of entire network -&gt; notarization is a proof of publication</li>
+      <li>this notarization also serves as a timestamp, assuming each committee only active at a certain blockheight</li>
+      <li>this scheme implies:
+        <ol>
+          <li>blocks cannot be withheld</li>
+          <li>impossible to build on old blocks.</li>
+        </ol>
+      </li>
+      <li>BUT: a block could get half-notarized, if there is a timeout. An adversary can withhold sig-shares, and hold back the notarization.
+        <ul>
+          <li>to fix: have block ref previous notarization (rather than prev block itself). this results in just one withheld block but cannot have a withheld child-chain.</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<p>q. how does one recover if a majority of validators is offline?</p>
+<ul>
+  <li>assume majority is honest (implying online). Otherwise, system stalls until enough validators come online.</li>
+</ul>
+
+<p>q. what are the tunable parameters?
+this could be important when bootstrapping the network, or managing it over time as more participants join or leave.</p>
+<ol>
+  <li>committee size</li>
+  <li>block time:
+  rank block-makers, because we want to give them a higher chance of submitting their block to the notaries.</li>
+</ol>
+
+<p>q. fork choice rule?</p>
+<ol>
+  <li>block maker needs to pick fork on which to build next block (can have various algos to weigh diff forks)</li>
+  <li>notaries need to decide which of the two proposed blocks to confirm.</li>
+</ol>
+
+<p>Second part, by Mahnush</p>
+
+<p>Open Participation</p>
+<ul>
+  <li>Until now, we’ve assumed everyone knows everyone’s public-keys and everybody knows the group public-keys.</li>
+  <li>open participation: how do they regulate new participants joining?</li>
+  <li>they define block epochs (a seq of blocks, bookended by two “key frame” blocks)</li>
+</ul>
+
+<p>to join a group is hard:</p>
+<ol>
+  <li>randomness of the chain defines new groups</li>
+  <li>the group members run distributed key generation</li>
+  <li>they join by providing their group public key</li>
+</ol>
+
+<p>Challenge: how to agree on the group public key
+solution: use the consensus mechanism of the dfinity chain at the current epoch to change the behavior of the system itself at future epochs</p>
+
+<p>system contracts:</p>
+<ul>
+  <li>are happening on the chain, and can manipulate the behavior of the system in the future.
+    <ul>
+      <li>Most contracts require agreement, hence happening on the chain</li>
+      <li>result will be used on;y on the side of a fork on which it is used</li>
+    </ul>
+  </li>
+  <li>examples:
+    <ul>
+      <li>node registration</li>
+      <li>group registration</li>
+      <li>distributed key generation</li>
+      <li>system parameters</li>
+      <li>BNS</li>
+      <li>DFN payment</li>
+    </ul>
+  </li>
+</ul>
+
+<p>DKG contract:</p>
+<ul>
+  <li>for BLS we need signatures, so each person needs a signature</li>
+  <li>(t, n) Distributed Key Generation: create a master public key and set of partial signing keys  * previous studies:
+    <ul>
+      <li>extensively studied in crypto literature</li>
+      <li>most use point-to-point communication</li>
+      <li>assume or implement a reliable broadcast channel as a bulletin board. But because byzantine consensus is expensive, they cannot scale well.</li>
+      <li>we use the Dfinity chain as the bulletin board</li>
+    </ul>
+  </li>
+</ul>
+
+<p>DKG phases:</p>
+<ul>
+  <li>4 phases:
+    <ol>
+      <li>dealing:
+        <ul>
+          <li>steps</li>
+        </ul>
+        <ul>
+          <li>share a secret value using a polynomial. Use Shamir-secret sharing</li>
+          <li>create commitment to the polynomial</li>
+          <li>encrypt the shares of each party and</li>
+          <li>send the vector of shares to the contract
+      * all crypto-heavy steps are happening on the client, and chain only used for consensus.</li>
+        </ul>
+      </li>
+      <li>complain
+        <ul>
+          <li>steps</li>
+        </ul>
+        <ul>
+          <li>receive your share and commitment vector</li>
+          <li>check validity of your share</li>
+          <li>send your complaint to the contract if:
+            <ul>
+              <li>no share received</li>
+              <li>share was invalid</li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+      <li>justification
+        <ul>
+          <li>for each complaint:</li>
+        </ul>
+        <ul>
+          <li>send the share in clear-text to the contract. Everyone can check that it is valid.
+      * for each justification, the contract:</li>
+          <li>checks if the share is valid</li>
+          <li>if it is valid, it removes the complaint and accepts the sharing</li>
+        </ul>
+      </li>
+      <li>registration
+        <ul>
+          <li>the group public-key is the sum of the verification vector of each successful dealer</li>
+          <li>successful dealer: not have any unjustified complaints remaining</li>
+        </ul>
+      </li>
+    </ol>
+  </li>
+</ul>
+
+<p>take away:</p>
+<ol>
+  <li>system contracts are useful. Can be used to manage future behavior of the change</li>
+  <li>carefully design so that heavy part of the code is client-side and only consensus-parts are onchain</li>
+  <li>only the data that need agreement over will pass to the contract
+    <ul>
+      <li>contracts are event-driven, instead of phase-driven</li>
+    </ul>
+  </li>
+</ol>
+
+<h2 id="rapidfire-talks">RapidFire Talks</h2>
+
+<h2 id="talk6">Talk 6: Power Fault Tolerance: a new framing for consensus protocols</h2>
+<p>Juan Benet</p>
+
+<p>Outline</p>
+<ol>
+  <li>context:</li>
+  <li>engineering protocol</li>
+  <li>open problems</li>
+</ol>
+
+<p>types of nodes: malicious, rational (need incentive), altruistic/honest (always follow protocol)
+btc works even in presence of malicious nodes. 
+Introduce notion of proofs that data is stored.
+current cloud is based entirely on replication.
+currently users can lose data if the startup/company closes down.</p>
+
+<p>what if: user owned data but could control who had access.
+moreover: can we use incentives that enable renting space on hard-drives.</p>
+
+<p>modelled filecoin v2 paper after zerocash paper (zerocash was v2 of zerocoin)
+filecoin is built on top of IPFS</p>
+
+<p>stack:</p>
+<ul>
+  <li>filecoin: decentralized storage network</li>
+  <li>ipfs: dist web protocol</li>
+  <li>ipld: auth data model and formats</li>
+  <li>libp2p: modular p2p netoworking lib</li>
+</ul>
+
+<p>Filecoin properties:</p>
+<ul>
+  <li>must be a market</li>
+  <li>must allow price undercutting</li>
+  <li>must scale to ZB and beyond</li>
+  <li>must provide all tiers of service</li>
+  <li>good perf</li>
+  <li>get rid of need for business frontend</li>
+</ul>
+
+<p>Novel parts:</p>
+<ul>
+  <li>decentralized storage network: need formalization for these protocols</li>
+  <li>verifiable markets for storage and retrievable</li>
+  <li>proofs of replication and proofs of spacetime</li>
+  <li>useful proof of work for consensus</li>
+</ul>
+
+<p>three characters:</p>
+<ol>
+  <li>clients: store files, pay filecoin</li>
+  <li>miners: store data for network collect filecoin</li>
+  <li>network: organizes miners and clients</li>
+</ol>
+
+<p>Network should constantly be requiring proofs of storage.</p>
+
+<p>protocol needs blockchain for:</p>
+<ul>
+  <li>currency, balances,</li>
+  <li>market orders: bids, ask,</li>
+  <li>allocations: which miners store what pieces</li>
+  <li>proofs: verifiable record of correct beaviors</li>
+  <li>contracts: state and execution of smart contracts</li>
+</ul>
+
+<p>miner’s power is proportional to useful-storage they provide network</p>
+
+<p>markets for puts and gets can happen offchain, but for now is onchain to assist price-discovery</p>
+
+<p>type DSN interface {
+  Put(Data) Key
+  Get(Key) Data
+  Manage()
+}</p>
+
+<p>DSN properties:</p>
+<ol>
+  <li>complete,</li>
+  <li>secure if
+    <ul>
+      <li>assures data-integrity</li>
+      <li>assures retrievability,</li>
+      <li>tolerates management faults ((f, n)-tolerant if f nodes accept n faults),</li>
+      <li>tolerates storage-faults (f,m)-tolerant if Put stores in m independent storages can tolerate f faults, where m «&lt; n</li>
+    </ul>
+  </li>
+  <li>publicly verifiable</li>
+  <li>auditable, via trace of operations</li>
+  <li>incentive-compatible</li>
+</ol>
+
+<p>Proofs-of-Replication &amp; Proofs-of-Spacetime</p>
+<ul>
+  <li>classifying the types of Proofs-of-storage</li>
+  <li>concept &amp; a definition of proofs-of-replication
+    <ul>
+      <li>time-bounded PoRep</li>
+      <li>construction using CBC (expensive)</li>
+    </ul>
+  </li>
+  <li>concept and definition of Proofs-of-spacetime
+    <ul>
+      <li>construction using proof-chains</li>
+      <li>compact construction using SNARKs</li>
+    </ul>
+  </li>
+</ul>
+
+<p>Proofs-of-Space comprises Proofs-of-Storage, which comprises (PoRep, PoRet, Proof-of-Data-Possession)</p>
+
+<p>Security game for Proofs-of-Storage are of the form:</p>
+<ol>
+  <li>Verifier sends to Prover: Setup(data)</li>
+  <li>Verifier sends Challenge()</li>
+  <li>Prover does proof &lt;- Prove(challenge, data); and sends proof</li>
+  <li>Verifier: {0,1} &lt;- Verify(challenge, proof)
+This is PDP (proof of data possession).
+if proof can return data, then it is PoRet.</li>
+</ol>
+
+<p>Problems:</p>
+<ol>
+  <li><strong>What if we want P to store 2 copies of data?</strong>:
+    * P could pretend to store 2 copies and only store one.
+    * simple fix: verifier pre-encrypts different copies
+    * but these preclude prover from repairing copies…</li>
+  <li><strong>What if we want P1…Pn to store 1 copy of data each? (Sybil attack)</strong>:
+    * P1….Pn may be sybil identities or a coalition
+    * They could pretend to store 1 copy each, but deduplicate to store only 1.</li>
+  <li><strong>What if P could choose or determine the data?Generation Attack)</strong>:
+    * concrete description: P could choose data such that P can generate the data on-demand. P then pretends to store the data, but re-generates it just-in-time to Prove challenges.
+    * hard to defend, but in DSN settings its very easy to do by aligning incentives.
+    * hard to avoid participation rewards to ensure Generation Attack would be irrational</li>
+</ol>
+
+<p>Proof-of-Replication</p>
+<ul>
+  <li>definition: a proving scheme where a prover P can prove to a verifier V that P is indeed storing a particular replica R^D of data D. No two replicas R^D_i and R^D_k can be deduplicated into the same physical storage.</li>
+  <li>security game:
+    <ol>
+      <li>init: verifier sends: setup(data, ek) and prover does: replica &lt;- Encode(data, ek)</li>
+      <li>verifier sends “challenge”.</li>
+      <li>prover does proof &lt;- Prove(challenge, replica) and sends proof</li>
+      <li>verifier does {0,1} &lt;- Verify(challenge, proof)</li>
+    </ol>
+  </li>
+  <li>so, if there are two replicas on the same prover:
+    <ol>
+      <li>init: verifier sends: setup(data, ek1, ek2), and prover does: r1 &lt;- encode(data, ek1); r2 &lt;- encode(data, ek2)</li>
+      <li>verifier sends two challenges c1, c2</li>
+      <li>prover makes p1, and p2 proofs and sends to verifier</li>
+      <li>verifier does Verify(c1,p1) and Verify(c2,p2)</li>
+    </ol>
+  </li>
+</ul>
+
+<p>Proof-of-Spacetime</p>
+<ul>
+  <li>how do we reduce frequency of verifications?
+    <ul>
+      <li>Proofs-of-Storage require the verifier V to do frequent polling to ensure the prover P does indeed continue to store data D.</li>
+    </ul>
+  </li>
+  <li>intuitions:
+    <ul>
+      <li>we can aggregate proofs and present them all at once</li>
+      <li>we can use chaining to ensure proofs were produced sequentially, covering a span of time</li>
+    </ul>
+  </li>
+  <li>formally:
+    <ul>
+      <li>a proving scheme that allows a prover P to aggregate Proofs-of-Space(or Proofs-of-Storage) over time into an auditable record Proof that proves to a verifier V that P was indeed wasting space S (or storing data D) for a certain duration of time T.</li>
+    </ul>
+  </li>
+  <li>security game:
+    <ol>
+      <li>verifier sends: Setup(data, r0)</li>
+      <li>prover does:
+        <ul>
+          <li>one:</li>
+        </ul>
+        <ul>
+          <li>save data</li>
+          <li>c0 &lt;- NextChallenge(r0)</li>
+          <li>p0 &lt;- Prove(c0, data)
+      * two:</li>
+          <li>c1 &lt;- NextChallenge(p0)</li>
+          <li>p1 &lt;- Prove(c1, data)
+      * three:</li>
+          <li>c2 &lt;- NextChallenge(p1)</li>
+          <li>p2 &lt;- Prove(c2, data)</li>
+        </ul>
+      </li>
+      <li>verifier sends: poll &amp; re-challenge r1
+        <ul>
+          <li>prover does:</li>
+        </ul>
+        <ul>
+          <li>c3 &lt;- NextChallenge(p2, r1)</li>
+          <li>p3 &lt;- Prove(c3, data)</li>
+        </ul>
+      </li>
+      <li>prover sends: (p0, c0, …, (p3, c3)</li>
+      <li>verifier does: {0,1} &lt;- Verify(c0,..c3,  p0…p3)</li>
+    </ol>
+  </li>
+  <li>Note:
+    <ul>
+      <li>This process represents an auditable proofs-chain</li>
+      <li>can poll and add randomness to sequential computation. (Why?)</li>
+      <li>compress: can aggregate the proofs-chain with a SNARK/STARK sp and just send sp as proof</li>
+    </ul>
+  </li>
+</ul>
+
+<p>See slides for:</p>
+<ul>
+  <li>Storage Market</li>
+  <li>Retrieval Market</li>
+  <li>Filecoin Consensus and Power Fault Tolerance</li>
+  <li>Secret Leader Election and Expected Consensus</li>
+  <li>Storage Power Consensus: Useful Proof-of-Work for Consensus</li>
+  <li>Open Problems</li>
+</ul>
+
+<p>Users:</p>
+<ol>
+  <li>IPFS is live</li>
+  <li>dApps</li>
+  <li>participants with large datasets: machine learning or scientific</li>
+</ol>
+
+<h2 id="talk7">Talk 7: Proof of Replication using Depth Robust Graphs</h2>
+<p>Ben Fisch</p>
+
+<ul>
+  <li>system can internally ensure files are being stored</li>
+  <li>PoStorage:
+    <ul>
+      <li>proofs of data possession</li>
+      <li>proofs of retrievability (similar to possession but with many queries can extract file)</li>
+      <li>proofs of space: confirm that some resources are dedicated (could be junk!)</li>
+      <li>proof of spacetime: storing space throughout period of time</li>
+    </ul>
+  </li>
+</ul>
+
+<p>Data Generation Attack:</p>
+<ul>
+  <li>getting paid to store file, so generate junk data on the fly from some small seed on machine</li>
+  <li>want proof: dedicating unique resources to storing data, even if can generate junk data
+    <ul>
+      <li>this removes incentive to cheat, so no benefit to gen-ing junk data</li>
+    </ul>
+  </li>
+</ul>
+
+<p>Crypto Definition</p>
+<ul>
+  <li>PoRep.Setup(1^l, id, D) -&gt; R_id, commit_D
+    <ul>
+      <li>setup generates replica R_id</li>
+      <li>commit_D - (optional) commitment to data D.</li>
+    </ul>
+  </li>
+  <li>PoRep.Prove(R, id, c) -&gt; P_i
+    <ul>
+      <li>takes a challenge c</li>
+      <li>outputs proof-of-storage of R_id</li>
+    </ul>
+  </li>
+  <li>PoRep.Verify(id, c, commit_D, P) -&gt; {0,1}</li>
+</ul>
+
+<ol>
+  <li>Leads to an Extractor, proving proof-of-retrievability</li>
+  <li>proof-of-space: any snapshot (at time t) of the prover’s space must be of an appropriate size</li>
+  <li>replication: can partition this snapshot into parts so that one can independently derive a replica of the original data.
+    <ul>
+      <li>unfortunately, this is very hard to achieve in a cryptographic sense, because whatever strategy an honest-prover uses to verify their snapshot, can be mimic’d be an adversary who stores the data+key and then generates the snapshot such that it has two partitions.</li>
+      <li>so: assume a rational adversary. “Good” strategy satisfies strong-replication. For any adversary strategy, there is an efficient way to switch to a “good” strategy. Hence there is no real incentive to act bad.</li>
+    </ul>
+  </li>
+</ol>
+
+<p>Proofs of Replication:</p>
+<ul>
+  <li>scalability: maintain security and perf for large files</li>
+  <li>low communication: compact proofs (smaller than file size), and infrequent polling</li>
+  <li>fast verification: low complexity verification, much faster than polling period / setup time.</li>
+</ul>
+
+<p>Basic PoRep:</p>
+<ul>
+  <li>main tool: verifiable time-delay encoding. Slow encoding, fast decoding.</li>
+  <li>type of Verifiable Delay Function</li>
+  <li>could do: AES(KDF(id), D) -&gt; R_id
+    <ul>
+      <li>iterate many times</li>
+      <li>slow to decode</li>
+    </ul>
+  </li>
+  <li>see Ben’s talk from day-two for a faster way to do this</li>
+</ul>
+
+<p>What about large files?</p>
+<ul>
+  <li>encode separately each block</li>
+  <li>apply erasure code to file before breaking blocks
+    <ul>
+      <li>guarantees that if you haven’t deleted some data, can recover it</li>
+    </ul>
+  </li>
+  <li>verification: query for randomly sampled number of blocks to gain confidence that 90% of blocks aare being stored</li>
+  <li>problem:
+    <ul>
+      <li>initialization is expensive: each encoding takes a long time</li>
+      <li>highly parallelizable for adversary</li>
+    </ul>
+  </li>
+</ul>
+
+<p>CBC-stream encoding</p>
+<ul>
+  <li>derive encoding on one block, and use as seed for next block</li>
+  <li>adds sequentiality for each encoding, so can adjust the delay on each encoding (i.e. #iterations) so total time for N encodings remains the same</li>
+  <li>verifier still randomly selects number of blocks and decodes</li>
+  <li>BUT: adversary can delete half the blocks, and on the fly derive encodings from predecessar</li>
+</ul>
+
+<p>Solution: use Depth Robust Chaining</p>
+<ul>
+  <li>instead of a line (as in cbc), build a DAG graph</li>
+  <li>to derive encoding of specific block, need encodings of ancestors in graph</li>
+  <li>
+    <p>verification: ask for node and all ancestors</p>
+  </li>
+  <li>properties needed:
+    <ol>
+      <li>depth robust: any large subgraph of nodes contains a long path:
+        <ul>
+          <li>and many nodes in the subgraph have a large depth</li>
+          <li>studied problem: there are constructions for such graphs, and randomized constructions that are highly efficient</li>
+        </ul>
+      </li>
+      <li>suppose some d fraction of block encodings are deleted
+        <ul>
+          <li>high probability that random query selects node of “high” depth</li>
+          <li>answering query correctly requires recomputing the encodings sequentially of this long path</li>
+        </ul>
+      </li>
+    </ol>
+  </li>
+</ul>
+
+<h2 id="talk8">Talk 8: TLS-N: Non-repudiation over TLS enabling Ubiquitous Content Signing</h2>
+<p>Hubert Ritzdorf</p>
+
+<p>in TLS:</p>
+<ul>
+  <li>Alice can get data from server,</li>
+  <li>but cannot forward to Bob, because it is encrypted with symmetric key encryption between alice and server</li>
+</ul>
+
+<p>may want to do so for e.g. for archiving.
+better use case is: blockchain oracles</p>
+
+<p>with smart contract on blockchain want to do something that requires on real-world data, and needs an external data source (called oracle) to help out.</p>
+
+<p>requester/client &lt;– TLS conversation (http session or else) –&gt; generator/server &lt;…..CA verifies identity of server to client to verify server identity</p>
+<ul>
+  <li>can also have “verifier”(thirdparty/blockchain) that wants to learn something about the TLS conversation. (needs to trust CA)</li>
+  <li>server sends “evidence” to client. Client makes proof from evidence and plaintext. client sends proof to verifier.</li>
+</ul>
+
+<p>possible problems:</p>
+<ol>
+  <li>request-response can suffer from content reordering issues. e.g. what is price of btc? and response can come in other order.</li>
+  <li>privacy: usually send GET request to server. use access_token. added in plain-text with encryption. but now, this will be exposed.
+    <ul>
+      <li>need redactable proofs!</li>
+    </ul>
+  </li>
+  <li>denial of service: if have 1 signature over everything. this may mean server gets very large state =&gt; DOS attack.</li>
+  <li>redactability of proofs: if server has to decide what parts to redact. Means computational overhead on server =&gt; DOS attack.</li>
+</ol>
+
+<p>goals:</p>
+<ol>
+  <li>small server side state and overhead</li>
+  <li>client-side privacy protection (client decides what parts to redact and which to keep after getting response form server)</li>
+  <li>clear context -&gt; total order on requests</li>
+</ol>
+
+<p>TLS-N overview:</p>
+<ol>
+  <li>start with TLS handshake.</li>
+  <li>generate evidence: process small tls records with small state (on server). on client, needs to store all tls records and TLS-N parameters from handshake</li>
+  <li>client “returns evidence” to server</li>
+  <li>server “signs: evidence-generated + tls private key” + client’s evidence -&gt; sends evidence to client.</li>
+  <li>client uses privacy settings to generate its proof, after any redactions it has done.</li>
+</ol>
+
+<h2 id="talk9">Talk 9: NuCypher KMS: Decentralized Key management system</h2>
+<p>MacLane Wilkison et al</p>
+
+<p><a href="https://cdn2.hubspot.net/hubfs/2807639/NuCypher%20KMS%20Technical%20White%20Paper.pdf?t=1507918722771">whitepaper</a></p>
+
+<p>Why?</p>
+<ul>
+  <li>imagine if a sender (patient) is wanting to share data with multiple parties (doctors)</li>
+  <li>encrypted multi-user chats
+    <ul>
+      <li>encrypt every message for every participant. Doesn’t work for new participants who want to see history.</li>
+      <li>share group-key with everyone. But then one leak unravels security.</li>
+    </ul>
+  </li>
+  <li>decentralized netflix
+    <ul>
+      <li>today, the CDN or other centralized services like S3 is trusted to have access to the files</li>
+    </ul>
+  </li>
+</ul>
+
+<p>Solution: proxy re-encyption + decentralization</p>
+
+<p>PRE (proxy re-encryption)</p>
+<ul>
+  <li>steps
+    <ol>
+      <li>store file as C_A &lt;- encrypt(pk_A, m)</li>
+      <li>send file to proxy as C_A</li>
+      <li>proxy asks alice for rk_AtoB</li>
+      <li>proxy sends to bob: c_B &lt;- reencrypt(rk_AtoB, C_A)</li>
+    </ol>
+  </li>
+  <li>this way proxy doesn’t get secret data, while bob sees data as if encrypted for him</li>
+</ul>
+
+<p>Use threshold split-key re-encryption (Umbral)</p>
+<ul>
+  <li>splitting works similar to Shamir key-splitting</li>
+  <li>Umbral is spanish for threshold</li>
+  <li>PRE properties: unidirectional, single-hope, non-interactive</li>
+  <li>verification of re-encryption correctness via Non-interactive ZK proofs of knowledge</li>
+</ul>
+
+<p>used by:</p>
+<ul>
+  <li>Medical
+    <ul>
+      <li>MediBloc: https://medibloc.org/en/</li>
+      <li>IRXO</li>
+      <li>Medixain</li>
+      <li>Wholesome</li>
+    </ul>
+  </li>
+  <li>IoT
+    <ul>
+      <li>Spherity (with BigChainDB)</li>
+    </ul>
+  </li>
+  <li>decentralized marketplaces
+    <ul>
+      <li>datum</li>
+    </ul>
+  </li>
+  <li>decentralized DBs
+    <ul>
+      <li>bluzelle</li>
+      <li>fluence</li>
+      <li>wolk</li>
+    </ul>
+  </li>
+</ul>
+
+    </div>
+  </body>
+</html>
