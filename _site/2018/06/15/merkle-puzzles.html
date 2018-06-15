@@ -1,0 +1,50 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta charset="utf8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Merkle Puzzles</title>
+
+    <link rel="stylesheet" href="/css/sitewide.css">
+    <link rel="stylesheet" href="/css/post.css">
+  </head>
+  <body>
+    <div class="post_container">
+      <div class="home_link_container">
+        <a href="/">homeward bound.</a>
+      </div>
+      <div class="post_title">
+        Merkle Puzzles
+      </div>
+      <div class="post_date">
+        2018 . 06 . 15
+      </div>
+      ...
+      <p>Merkle Puzzles is a simple, clever scheme that Merkle came up with it at a seminar course during his undergrad in Berkeley, sometime in the 1970s.</p>
+
+<p>It enables two parties to establish a shared secret, while communicating over an insecure channel i.e. where an eavesdropper can listen in on all the communication. The security of this scheme relies on making it computationally-hard for the eavesdropper to figure out this shared secret, while remaining much easier for the two parties. This shared secret can be a <a href="https://en.wikipedia.org/wiki/Symmetric-key_algorithm">symmetric-encryption-key</a> letting Alice and Bob communicate completely securely, once the shared-secret has been established.</p>
+
+<p>Here’s how it works. We’ll have Alice trying to communicate the shared-secret to Bob, with Eve trying to be the eavesdropper.</p>
+<ol>
+  <li>Alice makes 2^32 ciphertexts as <code class="highlighter-rouge">ciphertext = Encrypt(key, message)</code> with
+    <ul>
+      <li><code class="highlighter-rouge">key</code> = <code class="highlighter-rouge">0^96 | b1 b2 ... b32</code>. A standard size for an encryption key is 128 bits. So, the first 96 bits are set to 0. The remaining 32 bits are uniquely chosen for each ciphertext.</li>
+      <li><code class="highlighter-rouge">message</code> = <code class="highlighter-rouge">"#i: &lt;i'th shared secret&gt;"</code> for the i’th ciphertext. Each shared-secret is unique.</li>
+      <li>Alice stores a table with two columns: index number, shared secret. This will be useful in the last step later.</li>
+    </ul>
+  </li>
+  <li>Alice sends all 2^32 ciphertexts to Bob. A property of the <code class="highlighter-rouge">Encrypt()</code> function is that each ciphertext looks completely random, and garbled to Eve.</li>
+  <li>Bob picks one of these ciphertexts at random. And then decrypts it by trying all possible 2^32 keys for it. This gives Bob the number <code class="highlighter-rouge">i</code> and its corresponding shared-secret.</li>
+  <li>Bob then sends this number <code class="highlighter-rouge">i</code> to Alice as plaintext i.e. Eve can tell what this number is.</li>
+  <li>Finally, Alice can look up the shared-secret for this number <code class="highlighter-rouge">i</code> in her table, and now both Alice and Bob have a shared-secret!</li>
+</ol>
+
+<p>Okay, so why is this secure?</p>
+
+<p>Notice that Alice needed to make 2^32 puzzles, and Bob took 2^32 tries to decrypt one of them. Eve doesn’t know which puzzle Alice chose, so would attempt to decrypt all the puzzles: <code class="highlighter-rouge">2^32 puzzles * 2^32 work to decrypt each puzzle = 2^64 steps</code>. In computer-science terms, Bob and Alice did <code class="highlighter-rouge">O(n)</code> work while Eve would need to do <code class="highlighter-rouge">O(n^2)</code> work.</p>
+
+<p>Please note this is not a very practical scheme, and we have much more efficient schemes today. What really speaks to me is the power of such thought experiments: Merkle Puzzles were one of the earliest public-key crypto schemes.</p>
+
+    </div>
+  </body>
+</html>
