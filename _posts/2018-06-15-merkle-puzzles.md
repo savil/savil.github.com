@@ -3,7 +3,7 @@ layout: post
 title: Merkle Puzzles
 ---
 
-Merkle Puzzles is a simple, clever scheme that Merkle came up with it at a seminar course during his undergrad in Berkeley, sometime in the 1970s.
+Merkle Puzzles is a simple, clever scheme that Merkle came up with at a seminar course, during his undergrad in Berkeley, sometime in the 1970s.
 
 It enables two parties to establish a shared secret, while communicating over an insecure channel i.e. where an eavesdropper can listen in on all the communication. The security of this scheme relies on making it computationally-hard for the eavesdropper to figure out this shared secret, while remaining much easier for the two parties. This shared secret can be a [symmetric-encryption-key](https://en.wikipedia.org/wiki/Symmetric-key_algorithm) letting the two parties communicate completely securely, once the shared-secret has been established.
 
@@ -19,6 +19,6 @@ Here's how it works. We'll have Alice trying to communicate the shared-secret to
 
 Okay, so why is this secure? 
 
-Notice that Alice needed to make 2^32 puzzles, and Bob took 2^32 tries to decrypt one of them. Eve doesn't know which puzzle Alice chose, so would attempt to decrypt all the puzzles: `2^32 puzzles * 2^32 work to decrypt each puzzle = 2^64 steps`. In computer-science speak, Bob and Alice did `O(n)` work while Eve would need to do `O(n^2)` work.
+Notice that Alice needed to make 2^32 puzzles, and Bob took 2^32 tries to decrypt one of them. Eve doesn't know which puzzle Bob chose, so would attempt to decrypt all the puzzles: `2^32 puzzles * 2^32 work to decrypt each puzzle = 2^64 steps`. In computer-science speak, Bob and Alice did `O(n)` work while Eve would need to do `O(n^2)` work.
 
 Please note this is not a very practical scheme, and we have much more efficient schemes today. What really speaks to me is the power of such thought experiments: Merkle Puzzles were one of the earliest public-key crypto schemes.
