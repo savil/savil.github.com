@@ -30,13 +30,16 @@
     <ul>
       <li><code class="highlighter-rouge">key</code> = <code class="highlighter-rouge">0^96 | b1 b2 ... b32</code>. A standard size for an encryption key is 128 bits. So, the first 96 bits are set to 0. The remaining 32 bits are uniquely chosen for each ciphertext.</li>
       <li><code class="highlighter-rouge">message</code> = <code class="highlighter-rouge">"#i: &lt;i'th shared secret&gt;"</code> for the i’th ciphertext. Each shared-secret is unique.</li>
-      <li>Alice stores a table with two columns: index number, shared secret. This will be useful in the last step later.</li>
+      <li><code class="highlighter-rouge">Encrypt</code> is function that has two properties:
+ i. there is a corresponding function <code class="highlighter-rouge">Decrypt</code> such that <code class="highlighter-rouge">message = Decrypt(key, Encrypt(key, message))</code>
+ ii. the output of <code class="highlighter-rouge">Encrypt</code> appears completely random.</li>
     </ul>
   </li>
-  <li>Alice sends all 2^32 ciphertexts to Bob. A property of the <code class="highlighter-rouge">Encrypt()</code> function is that each ciphertext looks completely random, and garbled to Eve.</li>
+  <li>Alice stores a table with two columns: index number, shared secret. This will be useful in the last step later.</li>
+  <li>Alice sends all 2^32 ciphertexts to Bob, in random order. Recall that each ciphertext looks completely random, and garbled, to Eve.</li>
   <li>Bob picks one of these ciphertexts at random. And then decrypts it by trying all possible 2^32 keys for it. This gives Bob the number <code class="highlighter-rouge">i</code> and its corresponding shared-secret.</li>
   <li>Bob then sends this number <code class="highlighter-rouge">i</code> to Alice as plaintext i.e. Eve can tell what this number is.</li>
-  <li>Finally, Alice can look up the shared-secret for this number <code class="highlighter-rouge">i</code> in her table, and now both Alice and Bob have a shared-secret!</li>
+  <li>Finally, Alice can look up the shared-secret for this number <code class="highlighter-rouge">i</code> in her table, and now both Alice and Bob have the same shared-secret!</li>
 </ol>
 
 <p>Okay, so why is this secure?</p>

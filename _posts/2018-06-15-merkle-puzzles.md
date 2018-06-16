@@ -11,11 +11,14 @@ Here's how it works. We'll have Alice trying to communicate the shared-secret to
 1. Alice makes 2^32 ciphertexts as `ciphertext = Encrypt(key, message)` with 
   * `key` = `0^96 | b1 b2 ... b32`. A standard size for an encryption key is 128 bits. So, the first 96 bits are set to 0. The remaining 32 bits are uniquely chosen for each ciphertext.
   * `message` = `"#i: <i'th shared secret>"` for the i'th ciphertext. Each shared-secret is unique. 
-  * Alice stores a table with two columns: index number, shared secret. This will be useful in the last step later.
-2. Alice sends all 2^32 ciphertexts to Bob. A property of the `Encrypt()` function is that each ciphertext looks completely random, and garbled to Eve.
-3. Bob picks one of these ciphertexts at random. And then decrypts it by trying all possible 2^32 keys for it. This gives Bob the number `i` and its corresponding shared-secret.
-4. Bob then sends this number `i` to Alice as plaintext i.e. Eve can tell what this number is.
-5. Finally, Alice can look up the shared-secret for this number `i` in her table, and now both Alice and Bob have a shared-secret!
+  * `Encrypt` is function that has two properties:
+    i. there is a corresponding function `Decrypt` such that `message = Decrypt(key, Encrypt(key, message))`
+    ii. the output of `Encrypt` appears completely random.
+2. Alice stores a table with two columns: index number, shared secret. This will be useful in the last step later.
+3. Alice sends all 2^32 ciphertexts to Bob, in random order. Recall that each ciphertext looks completely random, and garbled, to Eve.
+4. Bob picks one of these ciphertexts at random. And then decrypts it by trying all possible 2^32 keys for it. This gives Bob the number `i` and its corresponding shared-secret.
+5. Bob then sends this number `i` to Alice as plaintext i.e. Eve can tell what this number is.
+6. Finally, Alice can look up the shared-secret for this number `i` in her table, and now both Alice and Bob have the same shared-secret!
 
 Okay, so why is this secure? 
 
