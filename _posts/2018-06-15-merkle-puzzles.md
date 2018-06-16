@@ -22,6 +22,8 @@ Here's how it works. We'll have Alice trying to communicate the shared-secret to
 
 Okay, so why is this secure? 
 
-Notice that Alice needed to make 2^32 puzzles, and Bob took 2^32 tries to decrypt one of them. Eve doesn't know which puzzle Bob chose, so would attempt to decrypt all the puzzles: `2^32 puzzles * 2^32 work to decrypt each puzzle = 2^64 steps`. In computer-science speak, Bob and Alice did `O(n)` work while Eve would need to do `O(n^2)` work.
+Notice that Alice needed to make 2^32 puzzles, and Bob took 2^32 tries to decrypt one of them. Eve doesn't know which puzzle Bob chose, so would attempt to decrypt all the puzzles: `2^32 puzzles * 2^32 work to decrypt each puzzle = 2^64 steps`. In computer-science speak, Bob and Alice did `O(n)` work while Eve would need to do `O(n^2)` work. This way, Alice and Bob can stay ahead of Eve by exploiting this computational difference.
 
-Please note this is not a very practical scheme, and we have much more efficient schemes today. What really speaks to me is the power of such thought experiments: Merkle Puzzles were one of the earliest public-key crypto schemes.
+Please note this is not a very practical scheme, and we have much more efficient schemes today. Its also not very secure. Eve will eventually figure out what the shared-secret was. So, its only useful for communicating secrets that are relevant in a finite (short) time period, and its acceptable for them to be known later on. For example, a communication saying "launch the missiles!".
+
+What really speaks to me is the power of such thought experiments: Merkle Puzzles were one of the earliest public-key crypto schemes.
