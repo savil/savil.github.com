@@ -12,8 +12,8 @@ Here's how it works. We'll have Alice trying to communicate the shared-secret to
   * `key` = `0^96 | b1 b2 ... b32`. A standard size for an encryption key is 128 bits. So, the first 96 bits are set to 0. The remaining 32 bits are uniquely chosen for each ciphertext.
   * `message` = `"#i: <i'th shared secret>"` for the i'th ciphertext. Each shared-secret is unique. 
   * `Encrypt` is function that has two properties:
-    i. there is a corresponding function `Decrypt` such that `message = Decrypt(key, Encrypt(key, message))`
-    ii. the output of `Encrypt` appears completely random.
+    1. there is a corresponding function `Decrypt` such that `message = Decrypt(key, Encrypt(key, message))`
+    2. the output of `Encrypt` appears completely random.
 2. Alice stores a table with two columns: index number, shared secret. This will be useful in the last step later.
 3. Alice sends all 2^32 ciphertexts to Bob, in random order. Recall that each ciphertext looks completely random, and garbled, to Eve.
 4. Bob picks one of these ciphertexts at random. And then decrypts it by trying all possible 2^32 keys for it. This gives Bob the number `i` and its corresponding shared-secret.

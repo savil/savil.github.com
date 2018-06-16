@@ -30,10 +30,12 @@
     <ul>
       <li><code class="highlighter-rouge">key</code> = <code class="highlighter-rouge">0^96 | b1 b2 ... b32</code>. A standard size for an encryption key is 128 bits. So, the first 96 bits are set to 0. The remaining 32 bits are uniquely chosen for each ciphertext.</li>
       <li><code class="highlighter-rouge">message</code> = <code class="highlighter-rouge">"#i: &lt;i'th shared secret&gt;"</code> for the i’th ciphertext. Each shared-secret is unique.</li>
-      <li><code class="highlighter-rouge">Encrypt</code> is function that has two properties:
- i. there is a corresponding function <code class="highlighter-rouge">Decrypt</code> such that <code class="highlighter-rouge">message = Decrypt(key, Encrypt(key, message))</code>
- ii. the output of <code class="highlighter-rouge">Encrypt</code> appears completely random.</li>
+      <li><code class="highlighter-rouge">Encrypt</code> is function that has two properties:</li>
     </ul>
+    <ol>
+      <li>there is a corresponding function <code class="highlighter-rouge">Decrypt</code> such that <code class="highlighter-rouge">message = Decrypt(key, Encrypt(key, message))</code></li>
+      <li>the output of <code class="highlighter-rouge">Encrypt</code> appears completely random.</li>
+    </ol>
   </li>
   <li>Alice stores a table with two columns: index number, shared secret. This will be useful in the last step later.</li>
   <li>Alice sends all 2^32 ciphertexts to Bob, in random order. Recall that each ciphertext looks completely random, and garbled, to Eve.</li>
