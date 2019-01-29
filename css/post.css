@@ -7,3 +7,6 @@
   font-size: 1.2em;
 }
 
+.post_container h2 {
+  font-variant: all-small-caps;
+}
