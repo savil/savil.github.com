@@ -44,10 +44,10 @@ Talk 1: Game theory and network attacks: how to destroy bitcoin {#talk1}
 This talk is a survey of attacks. For an excellent overview of mining attacks with beautiful illustrations, [see this pdf](https://hacken.io/wp-content/uploads/The-Rush-for-Hashpower.pdf).
 
 ### selfish mining ###
-* paper: ["Majority is not enough"](https://www.cs.cornell.edu/~ie53/publications/btcProcFC.pdf)  
+* paper: ["Majority is not enough"](https://www.cs.cornell.edu/~ie53/publications/btcProcFC.pdf)
 
 * this is a block-withholding scheme.
-* normally, a miner would publish the block as soon as they find a valid block. 
+* normally, a miner would publish the block as soon as they find a valid block.
 * but they could keep it secret!
 * goal: find two blocks before the network finds the next one
 * the rest of the network, on the honest chain, thinks it is on the longest chain. But the miner has a longer chain, and this gives the miner some advantages.
@@ -59,13 +59,13 @@ Variation: what happens if the network found a valid block, before this miner fi
 * this leads to a race-to-propagate:
   * if miner has 25% network hashrate, and assuming 50% of network chooses attacker's chain, then malicious strategy is more profitable.
   * if miner has 33% network hashrate, then malicious strategy is more profitable, regardless of which chain the network chooses.
-  * why: intuitively we can consider that 
-    * (a) the attacker has had more time to mine the second block on its chain 
+  * why: intuitively we can consider that
+    * (a) the attacker has had more time to mine the second block on its chain
     * more importantly, (b) the honest network's hashrate gets divided into two. So, if all the attacker's (~25%) hashrate is focussed on the attacker's chain then it can make progress faster.
 
 ### stubborn mining model ###
 * model for thinking about [selfish mining, by: Nayak, Kumar, Miller, Shi](https://eprint.iacr.org/2015/796)
-* basic idea: can tell rest of network faster than others 
+* basic idea: can tell rest of network faster than others
 
 formal model:
 * let's have Alice as the attacker (i.e. attacker's hashrate), and Bob as the innocent miner (i.e. honest network's hashrate).
@@ -84,7 +84,7 @@ Stubborn strategies:
 
 ### selfish mining defenses ###
 * uniform tie breaking:
-  * for two blocks that you hear about. Randomly choose between them. 
+  * for two blocks that you hear about. Randomly choose between them.
      * Prevents attacker from benefiting from additional network connectivity.
      * some disagreement in literature on profit threshold. Original authors claim this raises threshold from 0% to 25%, others say: 23.2%.
 
@@ -98,21 +98,21 @@ Stubborn strategies:
   * backwards compat, no hard fork needed
   * can still disincentivize selfish mining even with longer chain
   * replace bitcoin fork resolving policy (FRP) with weighted FRP
-  * basic idea: weight depends on being published in a certain time-window. 
+  * basic idea: weight depends on being published in a certain time-window.
   * secret block that is withheld doesn't get any weight.
 
   * limitations:
     * assumes synchronous model for bitcoin blockchain. But bitcoin is async => this defence is useless.
 
 ### Game Theory based censorship ###
-want to prevent someone's transactions. 
-Let's imagine we have GJ = gary johnson = a prototypical libertarian. 
+want to prevent someone's transactions.
+Let's imagine we have GJ = gary johnson = a prototypical libertarian.
 and we have a Censor = e.g. China.
 
 * first try: blacklist
   * only works if have 100% power on network.
   * even 90% only causes delays
- 
+
 * second try: punitive forking
   * have > 51% hashrate
   * mandate that chinese pools do not include GJ's tx
@@ -146,7 +146,7 @@ and we have a Censor = e.g. China.
 * btc mining is zero sum, must exclude others
 * members-only mining
   * let hashrate join a collusion until 80% of network is in, then exclude rest
-  * no incentive not to join 
+  * no incentive not to join
     * attack succeeds => get more rewards
     * fails => conduct attack in a way it won't start until threshold is reached
   * game theory -> this should happen!
@@ -158,11 +158,11 @@ and we have a Censor = e.g. China.
 
 practical caveats:
 * need lots of risk or capital
-  * need tons of mining hw 
+  * need tons of mining hw
 * hard to write and deploy exploit software
 * insufficiently motivated miners
 takeaway: social structure is important. world is not rational.
-* need to look at behavioral economics, sociology, psychology to ask why this hasn't happened yet! 
+* need to look at behavioral economics, sociology, psychology to ask why this hasn't happened yet!
 
 Talk 2: State of the art attacks on secure hardware wallets {#talk2}
 ------------
@@ -198,7 +198,7 @@ Reminder: Secure software is super hard
   * big actors: Samsung, etc.
   * framework, attacker has physical access:
     * sw attack
-    * physical 
+    * physical
     * pertubation
     * side channel
 
@@ -225,11 +225,11 @@ Reminder: Secure software is super hard
      * pictures taken, semiautomatic process to reverse circuit
      * very costly, high know-how, time consuming
      * this attack is used in video game industry and ink cartrdiges
-       * ink cartridge: mutual authentication between printer and ink cartridge to avoid counterfeiting. 
+       * ink cartridge: mutual authentication between printer and ink cartridge to avoid counterfeiting.
        * Several Billion $ market.
        * solutions use secure element: obfuscation, encrypted nvm, active shield.
        * but attackers have cracked this
-  
+
   * x-ray circuit modification (paper: nanofocussed x-ray bean to reprogram secure circuits)
 
 * pertubation attacks
@@ -255,7 +255,7 @@ Reminder: Secure software is super hard
         * encrypted(CW) with pairing key that changes every 10 seconds. This E(CW) is returned from smart card.
         * BUT: every 10 seconds, full attack is done (takes ~100ms), session key is found and shared on internet
         * BUT BUT: can also get the pairing key, and now no timing constraints!
-           * techniques: 
+           * techniques:
              * ...see side channel attacks
 
 * side channel attacks
@@ -273,10 +273,10 @@ Reminder: Secure software is super hard
   * DPA: statistical attack
     * targets one intermediate value (a bit) which depends on key.
     * exploit a statistical difference: if power consumption or EM is different when this bit is 1 versus 0.
-  * CPA: generalizes DPA attack assuming power consumption model. 
+  * CPA: generalizes DPA attack assuming power consumption model.
     * C = a.HW(x) + b, where C = measured power consumption, and HW is hamming weight of sensitive value x.
-  
-  * template attacks: 
+
+  * template attacks:
     * instead of assuming a leakage model, model is observed on a sample with a known key
     * two stages:
       * stage 1: profile on known value to build model
@@ -284,15 +284,15 @@ Reminder: Secure software is super hard
     * european certification requires protection against template attacks up to several million traces for stage 1 and 1 million for stage 2.
     * secure products add countermeasures but others (like yubikey, or tv set top box) don't.
     * attack is cheap and efficient
-  
+
   * ML based side channel attacks
     * classification problem
-    * template => supervised learning 
+    * template => supervised learning
     * CPA, DPA => unsupervised learning
     * Resynchronization effort is minimised
     * countermeasure is to insert a "jitter" (?) in the trace
     * not too many articles published on this, but protection against is required by some certification authorities.
-    
+
 Conclusion:
 * lessons
   * if stakes are high, expect attackers will have high potential
@@ -343,12 +343,12 @@ useful background info:
         3. the competing block and uncle block extend the same parent block i.e. prove they are at the same level.
       * c_payout = c_bribe + c_block - c_uncle
         * the c_uncle that is issued to the miner is instead consumed by the attacker, thereby subsidizing her.
-      * ethereum limits number of uncle blocks to 2, per block  
+      * ethereum limits number of uncle blocks to 2, per block
       * for each uncle block:
         * network pays 2.625 eth
         * Alice pays...
 
-  * historyRevisionCon: 
+  * historyRevisionCon:
     * reverse tx to enable double spending.
     * assume:
       * no asymetrical trust assumptions between the briber and the miner. Neither party needs to trust the other.
@@ -356,7 +356,7 @@ useful background info:
         * if briber doesn't trust the miners => can include a whale tx (with incentive of large fee) after each block in the alternate chain.
       * contract's integrity not affected, by forks.
     * lets have three accounts:
-      * A1 = 10 coins. creates and funds contract. 
+      * A1 = 10 coins. creates and funds contract.
       * A2 = 100 coins to double spend. Spends coins in the longest chain.
       * A3 = 0 coins. to receive double-spend coins. Receives coins from A2 in the alternate-chain.
      * wait until A2 is confirmed in blockchain.
@@ -373,7 +373,7 @@ useful background info:
      * more than double-spending:
        * inspect state of other contracts - reverse computations and state contracts
 
-  * GoldfingerCon: 
+  * GoldfingerCon:
      * reduce utility of competing cryptocurrency (e.g. make btc less useful)
      * assumptions:
        * no asymetrical trust assumptions
@@ -387,7 +387,7 @@ useful background info:
            * the block is proved empty by checking that the merkle tree root is the same as the coinbase-tx hash.
              * TODO savil. how does ethereum look up properties of the btc-blockchain?
          * the contract then sends the reward to the ethereum address of the miner.
-	   * this ethereum address is calculated by: extract public-key from coinbase-tx output, and compute the ethereum address for this public-key. 
+	   * this ethereum address is calculated by: extract public-key from coinbase-tx output, and compute the ethereum address for this public-key.
 
 future work:
   * ramp up: assume majority of miners to participate
@@ -419,7 +419,7 @@ intuition:
 * pow: comes from brute force guessing of nonce
 * pos: comes from protocol itself
 
-Jonah proposes the following model 
+Jonah proposes the following model
 1. use some method to pick coin
 2. use some method to pick existing block
   * TODO savil: won't this always be the last "mined" block?
@@ -440,12 +440,12 @@ These assumptions hold for pow protocols like btc. These assumptions means we do
 POS, has two functions:
 1. validating function V
   * efficiently computable by every protocol participant
-  * `B` with `A = Pred(B)` is valid at t if and only if 
+  * `B` with `A = Pred(B)` is valid at t if and only if
       1. `V(B) = 1`
       2. `Miner(B) = Owner(c(B))` at A
       3. `t(A) <= t(B) <= t`
 2. mining function M: inputs are B, coin c, timestamp t => outputs new block
-  * M(A, c, tv) is efficiently computable by owner 
+  * M(A, c, tv) is efficiently computable by owner
   * if there is a valid block, then mining function should actually mine something
 
 Longest-chain protocol
@@ -458,7 +458,7 @@ Longest-chain protocol
     * but 1-local predictability can be chained on a private fork, letting one predict far in advance how many future blocks one can mine.
 
 
-  * Property 2: D-Globally predictable 
+  * Property 2: D-Globally predictable
 
     * every protocol participant can predict whether owner(c) is eligible to use c to mine, D blocks in advance.
 
@@ -470,7 +470,7 @@ Longest-chain protocol
     * blocks [1, D-1] provide the source of pseudo-randomness
 
   * Two extreme examples:
-    
+
     1. `V(B) = 1 <=> Hash(c(B), t(B)) < Threshold =>` globally predictable for all D
       * this was original POS proposal, where this Hash function replaces the btc-nonce.
     2. protocol where:
@@ -504,7 +504,7 @@ Attacks: undetectable nothing-at-stake
   * cardano, large D
   * peercoin, for all D
   * tezos, for large D
-* 1-locally predictable and 2-recent 
+* 1-locally predictable and 2-recent
   * algorand (would be vuln to nothing-at-stake attack but not longest chain)
 
 Conclusion:
@@ -525,8 +525,8 @@ q: ?
 * stop accepting blocks mined older than .5 seconds. How to protect against network latency or attacks?
 
 q: smaller the D, may affect entropy of seed that is used to randomly select miners?
-* depends on how protocol is implemented. 
-  * e.g. look back 1000 blocks, and use all of that randomness. That is 1000-predictable in model. 
+* depends on how protocol is implemented.
+  * e.g. look back 1000 blocks, and use all of that randomness. That is 1000-predictable in model.
 
 q: asynchrony plays a role.
 the more synchronicity you assume, the more you can eliminate selfish mining
@@ -558,11 +558,11 @@ hybrid casper:
   * every 50 blocks vote on whether block is in main chain
   * reduces energy => lower block reward
 * any eth holder can become validator by depositing eth in casper smart contract
-* staking pools can run casper themselves 
+* staking pools can run casper themselves
 
 why deposits?
-* see validators as evil. 
-* give larger incentives to work with. 
+* see validators as evil.
+* give larger incentives to work with.
 * impose large penalty on bad actors.
 
 mechanism:
@@ -581,7 +581,7 @@ slashing conditions
 
 designing casper FFG by Vlad and Vitalik
 * "minimal slashing conditions" => 4 conditions
-* came with formal verification 
+* came with formal verification
 * but we should use formal-verification when human intuitions are not enough, not a replacement for intuition!
 
 "parameterizing casper: decentralization/finality tradeoff"
@@ -621,11 +621,11 @@ This talk was interesting because it bridges the world of traditional distribute
 
 
 * what this talk is about:
-  * Doing fast, block confirmation times. 
+  * Doing fast, block confirmation times.
   * on core consensus and crash course on distributed consensus
   * not about: incentives and governance policy
 
-* motivation: 
+* motivation:
   * consider losses by airlines in reservation system downtimes
   * need: replication and robustness
   * this inspired dist. systems
@@ -642,7 +642,7 @@ This talk was interesting because it bridges the world of traditional distribute
 
 So, why is this not a solved problem? why roll one's own?
 * Classical: e.g. pbft, paxos. Are fast BUT complex.
-* Blockchains: e.g. "mathematics behind blockchains"[GKL'15][PSS'17]. 
+* Blockchains: e.g. "mathematics behind blockchains"[GKL'15][PSS'17].
   * Are simple, robust, but slow.
   * are often wasteful
   * assume: can remove pow from blockchains ("sleepy consensus" - PS16)
@@ -662,22 +662,22 @@ So, why is this not a solved problem? why roll one's own?
   * in optimistic case, need 2-3 "actual network rounds"
   * in attack case, fallback to underlying blockchain
 
-* ethereum scenario: 
+* ethereum scenario:
   * leader, blockchain and committee (e.g. stakeholders, or banks in a trusted scenario)
   * assumptions: assume miners are majority honest, and committee is majority honest (but need not be online)
-  * attempt 1: 
+  * attempt 1:
     * vote on blocks, confirm a block upon collecting enough votes by the committee.
     * problem: let's imagine blockchain forks in the day (due to network delay), so people who made fork A are now inconsistent with fork B that later won out. So, even if it worked, must wait for 1 block interval.
-  * attempt 2 (actual proposal): 
+  * attempt 2 (actual proposal):
     * leader proposes (seq, txs) and everyone votes on it
     * for a tx to become "notarized", it needs 3/4 of committee to vote
-  * let's imagine 
+  * let's imagine
     * tx1, tx2, tx3 are notarized <-- "confirm maximal lucky sequence"
     * tx4 is not yet
     * tx5, tx6 are notarized
   * crux of the problem: how do we solve the liveness issue if leader is corrupt or offline, or committee is offline?
   * blockchain collects evidence of an attack in "fast path", and upon detecting that we "enter the slow mode" via the blockchain. Once in the slow-mode, can use a smart-contract to elect a new leader and switch back to the fast-path.
-  * how to detect failure of the "fast path"? 
+  * how to detect failure of the "fast path"?
     * the faulty nodes must not implicate honest leader. should be robust.
     * miners must tell blockchain all the notarized and unnotarized tx, not just the confirmed tx as in traditional blockchains.
     * if in a block, one observes an unconfirmed tx, then inspect k more blocks: and see that tx3 has still not appeared in a "lucky sequence" => fast-path has failed. If leader had been honest and online, and also the committee, then the unconfirmed-tx would have been confirmed by now => are in failure mode.
@@ -687,11 +687,11 @@ So, why is this not a solved problem? why roll one's own?
 
 Summary:
 1. when things are good: single round of voting when things are good
-2. when things are bad: use blockchain to "view change" when things go bad 
+2. when things are bad: use blockchain to "view change" when things go bad
 
 Insights gained:
-1. claim a new theoretical paradigm. 
-  * In the old consensus, we have an asynchronous world, where the "bad path" makes solving this problem hard. 
+1. claim a new theoretical paradigm.
+  * In the old consensus, we have an asynchronous world, where the "bad path" makes solving this problem hard.
   * with blockchain, we use a synchronous protocol.
 2. "block interval must be constant time (O(1)) larger than max network delay"
   * "permissionless consensus has to be synchronous"
@@ -707,7 +707,7 @@ Talk 7: smart signatures, experiments in authorization {#talk7}
 ------
 By [Christopher Allen](https://twitter.com/ChristopherA), formerly blockstream. [slides](https://t.co/PojNRmTDD3). [video](https://youtu.be/E9sbWKbfyJU).
 
-* signatures: demonstrate validity of a message 
+* signatures: demonstrate validity of a message
   * examples = using RSA,  X.501 (Standard)
 * Trust policy: defined and limited by third-parties like a Certificate Authority and an app/browser/os
 * modern crypto allows many variations like multi-sig, ring sig, blind sig.
@@ -717,21 +717,21 @@ smart signatures: core use - authorization
 * additional parties can be authorized
 * more operators like OR and AND
 
-Main difference from traditional signatures: 
+Main difference from traditional signatures:
  * trust policy not interpreted by a CA or code by app/browser/os
  * trust policy is embodied by the signer into the signature itself.
 
-inspiration: 
+inspiration:
   * btc tx signature
   * has "Script" a stateless predicate language. many use-cases.
 
-use-cases: 
+use-cases:
 * multifactor expressions
-* signature delegation, and limit the time for it, or limit to quantity of money, 
+* signature delegation, and limit the time for it, or limit to quantity of money,
 and optionally permanently pass control (e.g. employment changes)
 * dev release/CI toolchain
-* transactional support: 
-  * signatures are part of a larger process: provided specific tx states exist or test against oracles. 
+* transactional support:
+  * signatures are part of a larger process: provided specific tx states exist or test against oracles.
   * For instance: prove provenance of art (via transaction history)
 
 Language requirements:
@@ -753,7 +753,7 @@ experiment: Bitcoin Script
 
   - (+) deterministic, bounded, efficient
   - (?) is it composable, and inspectable?
-  - (-) not provable 
+  - (-) not provable
   - no standalone version
 
 experiment: Ivy, by chain.com
@@ -841,19 +841,19 @@ q. (ken huang)...?
 a. idea behind "self sovereign" identity. something something.
 
 q. confused, you said "a smart signature is a predicate language" but Simplicity is more than that?
-a. not turing complete, it unwinds all loops etc. 
+a. not turing complete, it unwinds all loops etc.
 and people want to use it for provable predicate scripts, but clearly can be used for more.
 still suffers from re-entrancy
 
 q. what was your role in "sovereign foundation"? you'd mentioned it and i missed it.
-"sovereign foundation" are part of RebootingWebOfTrust community and working with W3C who have given permissions to move it forward as a "work item". 
+"sovereign foundation" are part of RebootingWebOfTrust community and working with W3C who have given permissions to move it forward as a "work item".
 
 
 Talk 8: Hardening Lightning {#talk8}
 ---------------------------------
 [Olaoluwa Osuntokun](https://twitter.com/roasbeef), Lightning Labs. [video](https://www.youtube.com/watch?v=V3f4yYVCxpk&feature=youtu.be). If you are like me, then you'll watch this video at 0.75x speed.
 
-To see the mechanism behind the Lightning Network, see this excellent [Bitcoin Magazine article](https://bitcoinmagazine.com/articles/understanding-the-lightning-network-part-building-a-bidirectional-payment-channel-1464710791/). TLDR; payment channels, connect them, route transactions across them. 
+To see the mechanism behind the Lightning Network, see this excellent [Bitcoin Magazine article](https://bitcoinmagazine.com/articles/understanding-the-lightning-network-part-building-a-bidirectional-payment-channel-1464710791/). TLDR; payment channels, connect them, route transactions across them.
 
 This [article](https://bitcoinmagazine.com/articles/future-bitcoin-what-lightning-could-look/) gives an overview of many other LN sub-topics.
 
@@ -883,11 +883,11 @@ Security Model:
 
   * The easy way or the hard way:
     * easy way: optimistically we only require on-chain enforcement in the case of a dispute, and everything else can happen offchain
-    
+
   * For a dispute, we assume we can write to the chain **eventually**(T, a time parameter)
     * T = csv_value (see CheckSequenceVerify time-lock in the Bitcoin Magazine article above)
     * Configurable, determines chain watching frequency
-    * this is the time-out period within which any dispute must be handled 
+    * this is the time-out period within which any dispute must be handled
 
   * We assume participants don't collude with pool-operators or miners. Strong non-censorship assumption.
 
@@ -914,7 +914,7 @@ Reducing ClientSide History Storage
   * Lightning's contract execution is local
     * clients need to store current-state
     * clients need to store prior states for possibly fixing breaches onchain
-    * "shadow chain" only manifested on mainchain in event of a conflict. 
+    * "shadow chain" only manifested on mainchain in event of a conflict.
       * the "shadow chain" is this set of alternate transactions, which let a Defender regain the funds in the channel, against a Cheater.
 
   * Channels' state transitions
@@ -950,22 +950,22 @@ History of Prior Succint Commitment Invalidation
      * downside: has a big on-chain footprint
   3. Commitment Revocations: hash or key-based, is the current channel design
      * how: every state has a public-key, and to move on to the next state, one must reveal the secret-key of the prior state.
-       * they've figured out a way to generate this public-key in a deterministic way: can walk down the client's constant-size state to generate secrets, and the receiver can collapse these down. (gah, need more details here!!) 
+       * they've figured out a way to generate this public-key in a deterministic way: can walk down the client's constant-size state to generate secrets, and the receiver can collapse these down. (gah, need more details here!!)
      * downside: must critically store O(log n) secrets of the remote party. More complex key derivation.
        * Also, has asymmetric state between the two channel parties. This is because of the way "blame" can be ascribed to avoid cheating. This is bad because if there is a network with N participants, then keeping track of state for N grows combinatorially.
   * GOAL:
     1. symmetric state
     2. constant storage for prior states
-  
+
 Commitment invalidation in Lightning 1.0 (current Lightning Network):
   * Lightning 1.0 uses key-based commitment invalidation
     * each party has multiple static EC points aka "basepoints".
     * Static points are tweaked with fresh randomness for each state
     * the randomness is derived from a verifiable PRF:
-       * currently using a multidimensional hashchain: shachain(k,i): a structure such that element number 10 can derive everything before it. 
+       * currently using a multidimensional hashchain: shachain(k,i): a structure such that element number 10 can derive everything before it.
 
   * <insert formulas for doing Key revocation and validation>
- 
+
   * Downsides:
     1. Client storage: C + O(log k)
     2. Outsourcer Storage: O(M) + O(N) + O(log(k))
@@ -1004,9 +1004,9 @@ Scaling Outsourcing: a review of state outsourcing
      * on-chain censorship is a major threat
      * CSV value T acts as a time-based security parameter for the Defender against the Cheater. This is configurable on a per-channel basis.
   * For participants who are not eternally vigilant, which is most folks, they can outsource to a WatchTower
-    * under current design: 
+    * under current design:
       * for commitments:
-        * send initial base-points. This is needed to construct the "witness script template": 
+        * send initial base-points. This is needed to construct the "witness script template":
         * For each state, send a new signature for the "justice transaction". This is the transaction that protects against the Cheater.
         * send description of "justice transaction", assuming both sides are using [BIP 69](https://github.com/bitcoin/bips/blob/master/bip-0069.mediawiki)
           * BIP69 ensures a deterministic ordering of tx inputs and outputs, originally meant for ensuring tx-privacy in bitcoin wallets.
@@ -1014,22 +1014,22 @@ Scaling Outsourcing: a review of state outsourcing
        * HTLCs require a new signature for every single HTLC that is there.
        * So, encrypt half the blob of the transaction with txid[:16] (which cannot be predicted), and WatchTower can check if this decrypts with the txid on the chain.
     * possible mechanisms:
-      1. authentication: could use ZKP's 
+      1. authentication: could use ZKP's
       2. compensation: pay-per-state, only provide bonus ipon action, subscription, etc.
 
 Scaling Outsourcing: lighter outsourcers
   * With Signed Sequence Commitments
-    * only need single (c,n,s,r) tuple per-client. O(1) constant size space. 
+    * only need single (c,n,s,r) tuple per-client. O(1) constant size space.
     * also able to skip outsourcing states. The older shachain approach needed every single state to enforce. Now, the LN client can choose to send every 10th state (or any N'th state) and pick some risk-level of being cheated, of their choice.
-  * BUT: the new design, as is, lets outsourcer take all the funds of the Cheater. 
+  * BUT: the new design, as is, lets outsourcer take all the funds of the Cheater.
     * However, one may want to add flexibility here to let the Cheater's funds be split in some proportion between the Client (i.e. the Defender) and the Outsourcer.
-    * can also cleverly use covenants to split the Cheater's funds.  
+    * can also cleverly use covenants to split the Cheater's funds.
 
 Scaling Outsourcing: outsourcer incentivization
   * two ways: pay-per-state or retribution bonus
   * BUT: retribution bonus would hopefully be minimal since breaches should be unlikely given the HTLC design
   * pay-per-state:
-   * each outsourcer has a specific kind of e-cash token, and use these to pay the outsourcer 
+   * each outsourcer has a specific kind of e-cash token, and use these to pay the outsourcer
    * this decoupling lets the outsourcer payment be done independently from the initial payment
    * and this opens up other possibilities of business-models for the outsourcer.
 
@@ -1044,7 +1044,7 @@ Scaling outsourcing: outsourcer static backups
 
 Onchain Succintness: 2-stage HTLCs
   * in current commitment design ([BOLT #3](https://github.com/lightningnetwork/lightning-rfc/blob/master/03-transactions.md))
-    * tries to solve an issue were when the CSV is large, the CLTV must be much larger 
+    * tries to solve an issue were when the CSV is large, the CLTV must be much larger
     * solved by making HTLC-claiming a 2-stage state machine:
       1. have convenants that are multi-signature and off-chain
       2. attest (broadcast) -> delay (csv) -> claim (sweep)
@@ -1064,13 +1064,13 @@ Onchain Succintness: 2-stage HTLCs
 
 Onchain succintness: multi-party channels
   * design questions in multi-party channels involve:
-   1. who pays the penalty, 
-   2. if one wants to update their own state, do they need to wait for everyone else to be online 
+   1. who pays the penalty,
+   2. if one wants to update their own state, do they need to wait for everyone else to be online
   * recent work on this in this paper [Scalable Funding of Bitcoin Micropayment Channel Networks](https://www.tik.ee.ethz.ch/file/a20a865ce40d40c8f942cf206a7cba96/Scalable_Funding_Of_Blockchain_Micropayment_Networks%20(1).pdf)
   * creates a hierarchy of multi-sig and regular bi-di channels. Can basically embed many channels within other channels using signature-aggregation of the participants in that channel.
   * downside: with key-based revocations design, it leads to a large number of onchain transactions in worst-case
   * Solution: reuse Signed Sequence Commitments
-    * has symmetric state, and can maintain constant-sized revocation state independent of number of participants in the channel itself. 
+    * has symmetric state, and can maintain constant-sized revocation state independent of number of participants in the channel itself.
 
 Onchain succintness: Fee control
   * today, all the fee in the channel is established at the time of channel-creation
@@ -1098,12 +1098,12 @@ perfect bug bounty should satisfy:
     * classic bounty, known payout => depends if attacker can earn more from exploiting
     * known bounty, use "exploit gap" => use multi-version programs => from space program => have diff implementations of same spec => run all in parallel and check they agree => if one has a bug, check if majority of systems are correct => if majority have mistake, then we're in trouble => if all don't make same mistake in same way, can detect if something is wrong => if all fails in same way, then we're screwed
       * assumes full independence of faults
-      * tried at nasa, not cost effective. Used 3x versions, got 4x fewer faults.   
+      * tried at nasa, not cost effective. Used 3x versions, got 4x fewer faults.
    * but smart contracts are diff:
      * in classical work, availability >> reliability
      * but in smart contracts: we don't care if not available. We want N-out-of-N agreement, better "no answer" than "wrong answer".
      * "exploit gap" means that attacker must find bug simultaneously affecting all deployments. As soon as one is known to be "bad", then we shut it all down.
- 
+
   * smart contracts, have small contracts with lots of value per line:
     * omisego: 396 line of code
     * tether: 423 lines
@@ -1116,7 +1116,7 @@ perfect bug bounty should satisfy:
 * automatic payout: must be censorship resistant, verifiable
   * use smart-contract to payout bounty, if we detect at runtime that there has been an exploit.
 
-challenges 
+challenges
 * of coordinating multiple smart contracts:
   * coordinator needs to be a simple proxy, be bug free
   * maintain consistent blockchain state
