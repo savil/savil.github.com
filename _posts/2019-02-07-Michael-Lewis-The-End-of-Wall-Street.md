@@ -15,7 +15,7 @@ I recently read Michael Lewis' [The End of Wall Street](https://delong.typepad.c
 
 3. These mortgages were further leveraged by investment banks, by creating synthetic-derivatives.
   - most succinct explanation is [here](https://plato.stanford.edu/entries/money-finance/#WhatFina). Search for "Synthetic CDO".
-  - **Commentary**: this is building a house of cards. Seems like getting to far away fro the underlying risk is bad?
+  - **Commentary**: this is building a house of cards. Seems like getting too far away from the underlying risk is bad?
 
 Takeaways:
 ------
