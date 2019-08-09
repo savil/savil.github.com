@@ -15,13 +15,13 @@ Money is a lever
 
 "Give me a lever long enough ... and I'll move the world" said Archimedes. It's generally accepted that technology is such a lever, and the more i have thought about it, finance and the monetary system is a lever for society to play with. Finance acts as a catalyst for the core underlying economic activity of society, which are the goods produced and services rendered. A well-designed financial system is one of the biggest levers we can have.
 
-Crypto Finance built on cryptocurrencies is permissionless, since any developer around the world can publish a smart-contract, and thus is democratizing in offering this lever to any motivated person with access to the internet. Analogous to how anyone can publish a website, or a phone app, from around the world.
+Crypto Finance built on cryptocurrencies is permissionless, since any developer around the world can publish a smart-contract. It is thus democratizing in offering this lever to any motivated person with access to the internet to developed financial applications. Analogous to how anyone can publish a website, or a phone app, from around the world.
 
 Working on creating such a lever is one of the highest impact work one can do.
 
 Finance is a tool to help the world
 ----
-Finance is often criticized for not building anything of value, and merely moving money around from one pocket to another. This is a cynical view i have come to reject. Finance, when done right, takes money from those who have it but don't have a good use for it, to those who need it for meaningful productive uses. To do this right, Finance devises ways of managing risk for those giving the money away (e.g. credit ratings) and...
+Finance is often criticized for not building anything of value, and merely moving money around from one pocket to another. This is a cynical view i have come to reject. Finance, when done right, takes money from those who have it but don't have a good use for it, to those who need it for meaningful productive uses. To do this right, Finance devises ways of managing risk (e.g. credit ratings) and ways to generate returns (e.g. creation of new financial assets) for those giving the money away. In doing so, they lower the barrier to getting this money cheaply for those who wish to pursue an economic activity [\[3\]](#ref3)
 
 Most of the world suffers from underdeveloped financial institutions. Crypto Finance will see the development of financial institutions and norms that span the globe, offering people in countries with underdeveloped finance access to the same financial institutions as those in developed countries. Analogous to how anyone can use the same WhatsApp and same Gmail around the world.
 
@@ -38,3 +38,5 @@ References:
 <a href="#" name="ref1">1.</a> [The Case for Electronic Cash, by Jerry Brito of Coin Center](https://www.youtube.com/watch?v=wmXDJpYF46E&fbclid=IwAR3tBKD1PRUK8qt32VaR1K2uuF36JqLVSVvwkiA_2_TO7Up_5881Xf_Z8Yc) points out how the NY Governor pressured financial institutions to not work with the NRA, and how this same tactic could be similarly used to prevent Planned Parenthood from operating in Alabama or Louisiana.
 
 <a href="#" name="ref2">2.</a> [We Should All Have Something to Hide, by Moxie Marlinspike](https://moxie.org/blog/we-should-all-have-something-to-hide/?fbclid=IwAR3rmU6-Xoa98ukebOKg8niK9-SkrGF3Mhvuw-mhHXpjCS5xTBCqYMDEF0g) demonstrates how gay rights could not have been advanced without people first breaking the law and engaging in gay relationships. Privacy is critical for being able to do this.
+
+<a href="#" name="ref3">3.</a> [The Philosophy of Money and Finance, by Stanford Encyclopedia of Philosophy](https://plato.stanford.edu/entries/money-finance/) gives a good outline of Finance's self-regarded role in society.
