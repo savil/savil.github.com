@@ -27,11 +27,17 @@ Most of the world suffers from underdeveloped financial institutions. People are
 
 Privacy is critical to new money
 ----
-As our lives get more digital, more of our financial lives occur online. They flow through payment intermediaries like Visa and AliPay. These intermediaries can control whether we are allowed to make payments, and can use this data to develop their own financial products -- without our permission (ref. social credit system in China). With cryptocurrencies, we now know how to invent new monetary systems with digital bearer assets. These don't need intermediares to do payments.
+Cryptocurrencies today are transparent networks. Except for the privacy-focussed currencies like ZCash or Monero, all data and activity is public. Specifically, the transaction graph, payment amounts, and IP Addresses of users are public, by default. There are some services (like Tor) that may obscure part of this, but they don't form a complete private system in totality.
 
-However, being transparent networks, cryptocurrencies make it easy to surveil activity. This is especially true in 2019 where we have tools and knowledge (of big data collection, processing and finding insights in them) to uncover what individuals are doing from traces of their activity.
+This is bad for two reasons: utility and privacy rights.
 
-This makes privacy in cryptocurrencies critical for any open, liberal society. In the absence of privacy, we become unable to assemble and coordinate freely [\[1\]](#ref1), and evolve our society to become better [\[2\]](#ref2). As traditional financial systems get survielled, Private Crypto Finance offers a path to preserving the Right to Privacy in one's financial activity.
+Utility: no business wants the information about what it pays its suppliers, and what its customers pay it to be public. This hurts the business, and enables its competitors to gain an edge.
+
+Privacy rights #1: traditional payments happen via intermediaries, which can then exercise control over any two parties transacting. Around the world, Visa intermediates most credit card payments, and in China AliPay and WeChat intermediate digital payments. Without their user's consent, they are then able to make financial products that can be used to harm individual users (ref. social credit system in China), and buy-and-sell data on their users (e.g. Experian, and Equifax in the US). Overbearing governments can lean on these providers to censor activity of their citizens. Cryptocurrencies are bearer-assets, and smart-contracts can become autonomous products, obviating the need for intermediaries.
+
+Privacy Rights #2: Being transparent networks, non-privacy cryptocurrencies make it easy to surveil activity. This is especially true in 2019 where we have tools and knowledge (of big data collection, processing and finding insights in them) to uncover what individuals are doing from traces of their activity. This makes privacy in cryptocurrencies critical for any open, liberal society. In the absence of privacy, we become unable to assemble and coordinate freely [\[1\]](#ref1), and evolve our society to become better [\[2\]](#ref2). As traditional financial systems get surveilled, Private Crypto Finance offers a path to preserving the Right to Privacy in one's financial activity.
+
+There is a dark underbelly of having full privacy over financial activity: terrorists and money laundering. How this should be tackled by fully private cryptocurrencies is an open area of (personal) research.
 
 References:
 ----
