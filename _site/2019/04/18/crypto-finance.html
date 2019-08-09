@@ -1,0 +1,155 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta charset="utf8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Crypto Finance</title>
+
+    <link rel="stylesheet" href="/css/sitewide.css">
+    <link rel="stylesheet" href="/css/post.css">
+  </head>
+  <body>
+    <div class="post_container">
+      <div class="home_link_container">
+        <a href="/">homeward bound.</a>
+      </div>
+      <div class="post_title">
+        Crypto Finance
+      </div>
+      <div class="post_date">
+        2019 . 04 . 18
+      </div>
+      ...
+      <p>Cryptocurrencies are nascent social movements atop which new financial institutions are being built. These financial structures are tiny right now, but could eventually grow to form a parallel financial system spanning the globe. If this happens, they will economically empower people around the world by giving everyone access to the same financial norms and systems, regardless of geography. They will provide competition to geography-bound national financial systems, forcing them to improve. The ramifications of this movement will have many effects on the world, and these ramifications could be both good, and bad.</p>
+
+<p>This essay seeks to explain from the ground-up how crypto finance works, and delves into some of these ramifications. It’s a long read. I’ve tried to explain it in terms that someone without a background in finance, or cryptocurrencies can follow along.</p>
+
+<p>Outline:</p>
+<ul>
+  <li><a href="#part1">Finance 101: For non-finance people, like me</a></li>
+  <li><a href="#part2">Market institutions</a></li>
+  <li><a href="#part3">Regulatory capture by incumbents</a></li>
+  <li><a href="#part4">Enter Crypto</a></li>
+  <li><a href="#part5">Crypto &lt;-&gt; Traditional Finance</a></li>
+  <li><a href="#part6">The Good</a></li>
+  <li><a href="#part7">The Bad</a></li>
+</ul>
+
+<h2 id="part1">FINANCE 101: FOR NON-FINANCE PEOPLE, LIKE ME</h2>
+<p>This background is a tad long. Feel free to skip ahead to <a href="#part2">Market institutions</a>, and revisit it later.</p>
+
+<p>Traditional finance has done much good for the world, the Great Recession of 2008 notwithstanding. In some countries, it provides a way to channel money from those who have it, to those who need it for some economic activity. Example: providing loans to start or expand a business. Finance has done a decent job of improving the lives of the middle and upper classes in the US, Japan, Europe, and many middle-income nations. Lower-income nations suffer from having underdeveloped financial institutions.</p>
+
+<p>To get some concrete intuition on how finance helps, let’s walk through the life of a loan.</p>
+
+<p>First, the process of granting a loan to a business requires evaluating how much one can trust a person or business to pay the loan back. This means examining not just the creditworthiness of the business plan, but also the credit history of the person or business seeking the loan. Ultimately, this is a subjective judgement that gets converted into objective scores, like a credit score. This evaluation determines if and on what terms the loan is granted. The loan recipient can then deploy the money for their business purpose.</p>
+
+<p>Second, the lender will seek to lower the risk of not getting paid back. A common way to do this is by pooling the loan with other similar loans i.e. loans whose recipients have similar credit-worthiness. By having a pool of loans, any one loan recipient failing to repay the loan harms the lender less. The lender’s risk of not getting paid back is lowered. The lender could even completely get rid of all risk by selling this pool of loans to other financial institutions, who can take on the risk in return for the stream of payments. Thus, the original lender gets income for originating this pool of loans.</p>
+
+<p>Third, and last, lets go one step further and examine how someone who owns a pool of these loans would sell parts of it to other investors. Some of these investors will be more risk-averse than others, and may differ on time-horizons. Credit unions and banks usually have shorter time-horizons, compared to pension funds.</p>
+
+<p>The risk for this pool of loans can be lowered even further by cutting it into smaller pieces, called slices. Crucially, each slice represents a small part of each loan in the pool: no one slice relies on a single loan being paid back. Thus a slice is less risky than any single loan that was granted originally, even though its principal value may be the same as any one loan.</p>
+
+<p>The repayments for these slices can also be structured in a way that different slices can have different rates at which they are repaid. An example follows.</p>
+
+<p>One factor affecting repayments is the time to pay the loan back. Often loans may get pre-paid i.e. paid before they are due. Based on historical data, one can assume a certain prepayment rate. However, rising or falling interest rates affect whether any particular pool of loans may prepay at a higher or lower rate. Rising interest rates lead to higher prepayment rates.</p>
+
+<p>Any loan pool gets a set of repayments every month. Instead of assigning the repayment evenly to the slices its loan “belongs” to, we can redesign how repayments are allocated to the slices. We could say that slice #1 must get its full expected repayment before any other slice gets its repayment. Then slice #2 must get its full expected repayment before any other slice, except slice #1. And so on, until the last slice gets whatever is remaining. In this manner, slices with guaranteed pre-payment rates can be offered to investors with short time horizons (like credit unions, banks). The last few volatile slices can be offered to investors with long time horizons (like pension funds).</p>
+
+<p>In this way, slicing loans enables more investors to become lenders. Thus more investors are able to lend funds out, than if they could only directly match loans to the end recipient.</p>
+
+<p>This draws more investors into being lenders, which increases the supply of loans in the market. A greater supply of loans means that lenders will be competing against each other for loan recipients: so, to make their loans more enticing, they will charge lower interest rates. The loan recipients can get cheaper loans enabling them to unlock economic activity (e.g. buy a tool to become more efficient, purchase a more reliable car, hire an employee, etc.) that they would otherwise not be able to do until they had saved up the total cost of that purchase or could afford the higher rates of interest.</p>
+
+<h2 id="part2">MARKET INSTITUTIONS</h2>
+
+<p>Now, let’s zoom out of this Finance 101 picture. Let’s examine what market institutions enabled this.</p>
+
+<p>First, we need banks and other lenders to offer loans. This used to be done in person, but as you can imagine this skewed the market: only those who were socially-acceptable to their banker got loans, not the best business ideas. Now this is done via credit-scores and credit-histories, which need to be provided by credit-bureaus.</p>
+
+<p>Then we need financial institutions to pool loans and slice them. We need ratings agencies to understand each loan pool and slicing methodology, so they can rate them (as AAA or AAB or BBB) which determines what their interest rates should be for buyers of the pools and slices. And finally, we need markets in which these can be offered to investors and traded.</p>
+
+<p>Underlying all these market institutions, we need regulatory authorities to create rules at each step to ensure fairness, and a legal system to craft and enforce contracts.</p>
+
+<h2 id="part3">REGULATORY CAPTURE BY INCUMBENTS</h2>
+
+<p>In underdeveloped financial markets, some of these market institutions may not exist, and the regulatory and legal systems are much more likely to get captured by the ruling elites in business and government. These systems are then distorted in their favor.</p>
+
+<p>The way this happens is unique to each country, but the general pattern is that one of these market players is initially dominant, and then seeks to limit the development of the other market institutions for their own profit.</p>
+
+<p>An example of this is the bond market in Japan in the 1980s. Companies seeking to offer bonds needed approval from a Bond Committee, ostensibly to protect the public who would buy these bonds. The alternative to offering bonds, would have been to seek out a bank loan. The members of this committee, however, comprised the big banks themselves! As the incentives would suggest, it was hard for any company to get approval, including AA+ rated Hitachi.</p>
+
+<p>Such a status quo is often interrupted by an external change that introduces competition, either by local players getting access to external finance, or by external players entering the local market. In the example above, changes to the law that allowed external financing and access to the Eurobond market finally broke the stranglehold, and let Japanese companies raise bond financing.</p>
+
+<p>Cryptocurrencies and the financial economy within them represent such a change that will disrupt local financial players in national economies. They will do this by providing alternate markets (in the crypto economy), and alternate means of obtaining finance (via the equivalent of market-institutions like credit-bureaus) for local players who are trying to provide services and products in the national economy.</p>
+
+<h2 id="part4">ENTER CRYPTO</h2>
+
+<p>In a crypto financial system, we’ll still need all the same market players, but the legal contracts and regulatory system are replaced by code (colloquially called “smart contracts”). In particular, assets can be represented as “crypto tokens”. Think of these as software-representations of property and money. For the purposes of this discussion, a bitcoin or ether (native currencies of the bitcoin and ethereum blockchains) are considered as tokens.</p>
+
+<p>Let’s consider a concrete example of a crypto loan, and walk through its mechanics to get a feel for how this works. In the traditional world, legal contracts govern the rules for a mortgage loan on a house. The physical house itself serves as the property representing collateral for the loan. If the home-buyer defaults on loan repayments, the house can be seized and sold to recover the principal of the loan.</p>
+
+<p>In crypto, we don’t have houses. Here, loans work a little differently, at least for today. A person may possess some “tokens”, like some bitcoin, which can be deposited into a loan-contract as collateral. This means that a software program (the loan-contract) now holds this bitcoin as collateral, and has some internal logic saying that this bitcoin’s true owner is so-and-so person. This person may now choose to take a loan out from this loan-contract by requesting some quantity of another token (e.g. some ether) whose US dollar value is much less than the collateral’s value. If this person fails to pay back the ether to the loan-contract, then the loan-contract program can automatically sell some of the bitcoin collateral to recover the ether.</p>
+
+<p>This may seem strange to you: this person will deposit say $100 worth of bitcoin, and take out $10 worth of ether. Why can’t she hold on to her bitcoin, sell $10 worth of it and just buy $10 worth of ether directly with that? This uses the wrong mental model. Its equating bitcoin for money, which is mainly used a medium of exchange. Imagine if, instead, you had (say) gold? It seems reasonable to deposit some gold in your bank, and withdraw $10 worth of currency to use. Hopefully, this analogy makes the above scenario more palatable.</p>
+
+<p>In the above scenario, we used bitcoin and ether as examples of tokens. But tokens can be of many more kinds. They can also represent shares of ownership in a crypto company, determining who votes on governance decisions. One can imagine a social network rewarding you with tokens for posting new content, and then requiring you to deposit a token before “liking” other people’s content. These are crypto-native tokens, they only exist within the realm of the internet and cryptocurrencies. Tokens can also be tied to property outside the internet (see the next section on Crypto &lt;-&gt; Traditional Finance). Some tokens like <a href="https://makerdao.com/en/dai">DAI</a> are designed to track the value of a US Dollar – this makes them more palatable for many use-cases, since most people measure measure their assets in terms of US Dollars, and want to avoid the volatility of regular cryptocurrencies.</p>
+
+<p>So, to tie this back up. Tokens are software-representations of property. Contracts are software programs whose logic can simulate financial instruments, such as a collateralized loan. To build on this analogy, the regulatory system becomes the manner in which each contract program interacts with each other. If you don’t like the rules of a particular contract, you can make your own version of it with any modifications. But then you’ll need to both convince people to use it, and convince other contracts to be compatible with it.</p>
+
+<p>In this manner, we see that cryptocurrencies can have property and money, and on top of these we can create rules for manipulating them over time i.e. develop finance. This new environment will see the development of financial market institutions like money markets, credit bureaus, underwriters, ratings agencies, securitization and tranching, and so on. These have been shown in the traditional world to be necessary for managing risk, lowering the cost of capital and expanding access to finance.</p>
+
+<h2 id="part5">CRYPTO &lt;-&gt; TRADITIONAL FINANCE</h2>
+<p>The above is an isolated crypto financial system. To work in reality, we’ll need interactions between crypto-finance and traditional-finance. This happens today in the form of exchanges like Coinbase, where you can exchange US Dollars for Bitcoin or Ether.</p>
+
+<p>In the near future, crypto-tokens will be made that represent traditional securities like stocks, bonds, and real-estate. We may have institutions that buy a share of Google from a traditional stock exchange like Nasdaq, and then hold on to it, while selling a crypto-token representing this google share in a crypto exchange. Our legal system will need to recognize that holding that crypto-token entitles the holder to that particular share of Google.</p>
+
+<p>These platforms are required to tie the identity of each customer onto real-world, government-issued identity (i.e. for “know your customer” laws). This is needed for well understood reasons such as preventing terrorism financing and money laundering.</p>
+
+<p>This bridge between the traditional and crypto financial worlds are where the regulatory and legal systems will be involved. According to the narrative above, the traditional finance incumbents would push for rules to cripple this bridge. In this case, however, the paradigm shift of new forms of money is so different that even today 10 years after the invention of bitcoin the incumbents don’t take it seriously. My hunch is that they will overlook this threat and their opportunity to lobby against it, thinking they can co-opt it when the space matures.</p>
+
+<p>Unfortunately for the incumbents, the qualities needed to succeed in crypto finance will be different. The social norms for designing products, and the technical capabilities needed to operate in cryptocurrencies are different from traditional finance. As a result, the traditional power structures inside these incumbents will be ill-equipped to prioritize and respond to the crypto startups. Eventually, just as it is easier today for Amazon to project its capabilities into offline stores than for Walmart to make an online competitor, we will have crypto companies directly competing with traditional finance in their own domain, while leveraging profits from the crypto economy.</p>
+
+<h2 id="part6">THE GOOD</h2>
+
+<p>Crypto finance operates across national borders. Just as the internet made it possible for everyone to access the same information, crypto-finance will let everyone access the same financial markets, with the same market institutions.</p>
+
+<p>This drastically changes the economic possibilities of people in emerging markets. No longer do they need to rely on their local economies to finance their ideas, and economic activities. They can tap into the same sources of crypto-finance funding available to those in the US, Japan, and Europe.</p>
+
+<p>Specifically, this will solve 3 important problems that finance works on.</p>
+
+<p>First, reducing risk premiums. For example: a good system of credit-histories, and enforcement of defaulting conditions, reduces the risk of offering a loan. As a result, lenders can charge lower interest rates. In due course, such a system of credit-histories and scores will get established for cryptocurrencies, along with mechanisms for enforcing defaults. For people living in under-developed financial and legal systems, either these market institutions don’t exist at all, or are immature. Having the cryptocurrency-versions of these institutions will open up access to credit for them, and force their national-systems to compete with this alternative.</p>
+
+<p>Second, managing risk. Example: earthquake insurance sold in California. The insurer would get wiped out in the event of an actual earthquake, since all the policies would need to be paid out at the same time. To mitigate this, the policy is re-sold in the re-insurance market to a buyer who will pool many policies from different states so that they (the buyer) gets a steady income of premiums, and no one earthquake can wipe them out. Such earthquake insurance is not easily available around the world. Forms of such insurance (e.g. as <a href="https://en.wikipedia.org/wiki/Parametric_insurance">parametric insurance</a>) can be built today via crypto smart-contracts, and be accessible via any cheap smartphone. For example, <a href="http://hurricaneguard.io">HurricaneGuard</a> provides such insurance in Puerto Rico.</p>
+
+<p>Third, reducing information problems. Lending networks that run on smart-contracts are transparent and auditable. For example, consider <a href="https://bloqboard.com/research">Bloqboard’s crypto lending report</a>, which provides insights into the internals of different lenders on Ethereum in a transparent way that doesn’t rely on trusting the lending platform or its auditors. This is just not possible in traditional finance.</p>
+
+<p>There are other higher-level benefits that crypto-finance can provide.</p>
+
+<p>Companies are working on ways of representing traditional securities like real-estate, or startup-stock, or fine-art in the form of crypto tokens. This provides a path to standardizing at a world-wide level how these assets can be represented, enabling them to be plugged into financial products with many benefits of making them easier to buy or sell, and being priced more fairly.</p>
+
+<p>This will unlock many other potential applications, not possible today. As just one example of many: In the US, Democratic Presidential candidates for 2020 have spoken about the need for a wealth tax to address growing inequality. Regardless of whether you feel this is a good policy move or not, one legitimate criticism of it is that it is hard to enforce this for illiquid private company stock, or for fine-art. By having assets be tokenized, which can then be traded in fractional-ownership shares, it becomes an idea that is feasible.</p>
+
+<h2 id="part7">THE BAD</h2>
+
+<p>Crypto finance will be created in a decentralized manner. Its creators are ordinary programmers, and their financiers, located around the world. However, these people implement their own political ideologies, and economic interests. They are not governed by any democratic structure.</p>
+
+<p>This represents a challenge to the entire notion of national sovereignty. If a nation cannot govern the rules for its economic activity, is it truly sovereign?</p>
+
+<p>This is analogous to the challenge that many countries like Myanmar to an extreme extent, and to a lesser extent India, are facing with social-media platforms. A democratic ethos says that the governing institutions in these countries should be able to set the norms for speech in their country. However, the policies put in place by Facebook and Twitter view this problem from the speech norms of the West. These norms are different than those of India or Thailand or China. While the bigger countries like India can twist their arms to comply, in return for access to their large market, smaller nations like Sri Lanka have less leverage. In addition, the urgency with which they address problems is governed by proximity to their homelands and market size. This translates into US &gt; India » Myanmar. This is not malicious behavior, it’s a natural consequence of where their management lives.</p>
+
+<p>Furthermore, the internet also enabled private messages between individuals. This empowers the individual, but can also abused by bad actors. In crypto, there are a few cryptocurrencies, like ZCash, experimenting with truly private, untraceable transactions. A similar challenge will undoubtedly be faced by them, where terrorists and human traffickers will find ways of using these systems.</p>
+
+<p>As a flip side to the previous example, China’s experience with policing the internet shows the extent to which communications can come under surveillance by the state. This has led to a loss of privacy in its civil society. As more economic activity gets onboarded onto cryptocurrencies, their open design and networks can make it easier for governments to monitor financial transactions.</p>
+
+<p>Currently, most research in the cryptocurrency industry and academia is focused on just getting the darn things working in terms of  security, scalability, and privacy. This focus is understandable because these are hard problems straining our current understanding of cryptography, distributed systems, and formal proof systems. Little effort has been spent on ensuring these designs are future proof against bad actors.  I don’t see this changing and it may come back to bite the community.</p>
+
+<p>CONCLUSION</p>
+
+<p>Traditional finance has done much good for the world by expanding access to money for those with good ideas on how to put this money to productive use. Cryptocurrencies have created money. They also have the building blocks to be able to program this money. This enables financing economic activity using cryptocurrencies. Since cryptocurrencies span the world, everyone will get access to the same “market institutions” in the form of protocols and smart-contract programs. For people living in financially under-developed countries this will be a big improvement over the financial institutions they are geographically-bound to today. Just like the internet resulted in a loss of control over information by governments, this will result in a loss of control of financial activity by national governments – which will have both good and bad ramifications.</p>
+
+<p><em>Many thanks to Diana and Samar for feedback on drafts of this.</em></p>
+
+
+    </div>
+  </body>
+</html>
